@@ -12,6 +12,7 @@ import android.content.IntentFilter;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.os.SystemClock;
+import android.support.v7.app.AppCompatActivity;
 import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
@@ -31,7 +32,7 @@ import java.util.HashMap;
 import java.util.Hashtable;
 import java.util.regex.Pattern;
 
-public class actDiscovery extends Activity{
+public class actDiscovery extends AppCompatActivity{
 	/**CONST: scan device menu id*/
 	public static final int MEMU_SCAN = 1;
 	/**CONST: quit system*/
@@ -163,29 +164,20 @@ public class actDiscovery extends Activity{
     public boolean onCreateOptionsMenu(Menu menu){
         super.onCreateOptionsMenu(menu);
         MenuItem miScan = menu.add(0, MEMU_SCAN, 0, getString(R.string.actDiscovery_menu_scan));
-        MenuItem miClose = menu.add(0, MEMU_QUIT, 1, getString(R.string.menu_close));
         miScan.setShowAsAction(MenuItem.SHOW_AS_ACTION_IF_ROOM);
-        miClose.setShowAsAction(MenuItem.SHOW_AS_ACTION_IF_ROOM);
         return super.onCreateOptionsMenu(menu);
     }
-	
-	/**
-	 * 菜单点击后的执行指令
-	 * */
-    @Override
-    public boolean onMenuItemSelected(int featureId, MenuItem item) {  
-        switch(item.getItemId()){  
+
+	@Override
+	public boolean onOptionsItemSelected(MenuItem item) {
+		switch(item.getItemId()){
 	        case MEMU_SCAN: //开始扫描
 	        	new scanDeviceTask().execute("");
 	        	return true;
-	        case MEMU_QUIT: //结束程序
-	        	this.setResult(Activity.RESULT_CANCELED, null);
-	        	this.finish();
-	        	return true;
 	        default:
-	        	return super.onMenuItemSelected(featureId, item);
+	        	return super.onOptionsItemSelected(item);
         }
-    }
+	}
 	
 	/**
 	 * 析构处理
@@ -256,12 +248,11 @@ public class actDiscovery extends Activity{
 	        this.msaListItemAdapter = new SimpleAdapter(this,malListItem,//数据源   
 	            R.layout.list_view_item_devices,//ListItem的XML实现  
 	            //动态数组与ImageItem对应的子项          
-	            new String[] {"NAME","MAC", "COD", "RSSI", "DEVICE_TYPE", "BOND"},   
+	            new String[] {"NAME","MAC", "COD", "DEVICE_TYPE", "BOND"},
 	            //ImageItem的XML文件里面的一个ImageView,两个TextView ID  
 	            new int[] {R.id.device_item_ble_name,
 	        			   R.id.device_item_ble_mac,
 	        			   R.id.device_item_ble_cod,
-	        			   R.id.device_item_ble_rssi,
 	        			   R.id.device_item_ble_device_type,
 	        			   R.id.device_item_ble_bond
 	        			  }
@@ -279,7 +270,7 @@ public class actDiscovery extends Activity{
             String sKey = e.nextElement();
             map.put("MAC", sKey);
             map.put("NAME", this.mhtFDS.get(sKey).get("NAME"));
-            map.put("RSSI", this.mhtFDS.get(sKey).get("RSSI"));
+//            map.put("RSSI", this.mhtFDS.get(sKey).get("RSSI"));
             map.put("COD", this.mhtFDS.get(sKey).get("COD"));
             map.put("BOND", this.mhtFDS.get(sKey).get("BOND"));
             map.put("DEVICE_TYPE", toDeviceTypeString(this.mhtFDS.get(sKey).get("DEVICE_TYPE")));

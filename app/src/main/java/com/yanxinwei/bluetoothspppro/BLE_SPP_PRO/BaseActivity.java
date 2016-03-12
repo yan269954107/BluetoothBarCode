@@ -1,8 +1,7 @@
 package com.yanxinwei.bluetoothspppro.BLE_SPP_PRO;
 
-import android.app.ActionBar;
-import android.app.Activity;
 import android.os.Environment;
+import android.support.v7.app.AppCompatActivity;
 import android.widget.Toast;
 
 import com.yanxinwei.bluetoothspppro.R;
@@ -15,15 +14,16 @@ import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.Locale;
 
-public class BaseActivity extends Activity{
+public class BaseActivity extends AppCompatActivity{
 	/**
 	 * 激活Action Bar的回退按钮
 	 * @return void
 	 * */
 	protected void enabledBack(){
 		/*设置程序可以点击图标返回主界面*/
-		ActionBar actionBar = getActionBar();
-		actionBar.setDisplayHomeAsUpEnabled(true);
+		android.support.v7.app.ActionBar actionBar = getSupportActionBar();
+		if (null != actionBar)
+			actionBar.setDisplayHomeAsUpEnabled(true);
 	}
 	
 	/**

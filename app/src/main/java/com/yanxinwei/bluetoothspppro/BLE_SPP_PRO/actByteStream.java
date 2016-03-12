@@ -101,44 +101,42 @@ public class actByteStream extends BaseCommActivity{
         miHelper.setShowAsAction(MenuItem.SHOW_AS_ACTION_NEVER); //一直隐藏
         return super.onCreateOptionsMenu(menu);
     }
-	
-	/**
-	 * Menu click execute instructions
-	 * */
-    @Override
-    public boolean onMenuItemSelected(int featureId, MenuItem item) {  
-        switch(item.getItemId())  {
-	        case android.R.id.home:
-	            // app icon in action bar clicked; go home
-	        	this.mbThreadStop = true; //Termination of the receiving thread
-	        	this.setResult(Activity.RESULT_CANCELED); //Return to the main interface
-	        	this.finish();
-	        	return true;
-	        case MEMU_CLEAR: //Clear the screen
-	        	this.mtvReceive.setText("");
-	        	return true;
-	        case MEMU_IO_MODE: //Set the IO mode
-	        	this.setIOModeDialog();
-	        	return true;
-	        case MEMU_SAVE_TO_FILE: //Saved to file
-	        	this.saveData2File();
-	        	return true;
-	        case MEMU_CLEAR_CMD_HISTORY: //Clear History command
-	        	this.clearAutoComplate(this.mactvInput);
-	        	return true;
-	        case MEMU_HELPER: //Display using the wizard
-	        	if (this.getString(R.string.language).toString().equals("zh-rCN"))
-	        		this.mtvReceive.setText(this.getStringFormRawFile(R.raw.byte_stream_cn) +"\n\n");
-	        	else if (this.getString(R.string.language).toString().equals("zh-rTW"))
-	        		this.mtvReceive.setText(this.getStringFormRawFile(R.raw.byte_stream_tw) +"\n\n");
-	        	else
-	        		this.mtvReceive.setText(this.getStringFormRawFile(R.raw.byte_stream_en) +"\n");
-	        	return true;
-	        default:
-	        	return super.onMenuItemSelected(featureId, item);
-        }
-    }
-	
+
+	@Override
+	public boolean onOptionsItemSelected(MenuItem item) {
+		switch(item.getItemId())  {
+			case android.R.id.home:
+				// app icon in action bar clicked; go home
+				this.mbThreadStop = true; //Termination of the receiving thread
+				this.setResult(Activity.RESULT_CANCELED); //Return to the main interface
+				this.finish();
+				return true;
+			case MEMU_CLEAR: //Clear the screen
+				this.mtvReceive.setText("");
+				return true;
+			case MEMU_IO_MODE: //Set the IO mode
+				this.setIOModeDialog();
+				return true;
+			case MEMU_SAVE_TO_FILE: //Saved to file
+				this.saveData2File();
+				return true;
+			case MEMU_CLEAR_CMD_HISTORY: //Clear History command
+				this.clearAutoComplate(this.mactvInput);
+				return true;
+			case MEMU_HELPER: //Display using the wizard
+				if (this.getString(R.string.language).toString().equals("zh-rCN"))
+					this.mtvReceive.setText(this.getStringFormRawFile(R.raw.byte_stream_cn) +"\n\n");
+				else if (this.getString(R.string.language).toString().equals("zh-rTW"))
+					this.mtvReceive.setText(this.getStringFormRawFile(R.raw.byte_stream_tw) +"\n\n");
+				else
+					this.mtvReceive.setText(this.getStringFormRawFile(R.raw.byte_stream_en) +"\n");
+				return true;
+			default:
+				return super.onOptionsItemSelected(item);
+		}
+	}
+
+
 	/**
 	 * 界面的控件初始化
 	 * @return void
@@ -173,7 +171,6 @@ public class actByteStream extends BaseCommActivity{
      * 用户按返回按钮的处理
      * @param keyCode
      * @param event
-     * @param data
      */
     @Override
     public boolean onKeyDown(int keyCode, KeyEvent event){

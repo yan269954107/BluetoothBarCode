@@ -147,50 +147,46 @@ public class actCmdLine extends BaseCommActivity{
         miHelper.setShowAsAction(MenuItem.SHOW_AS_ACTION_NEVER); //一直隐藏
         return super.onCreateOptionsMenu(menu);
     }
-	
-	/**
-	 * 菜单点击后的执行指令
-	 * */
-    @Override
-    public boolean onMenuItemSelected(int featureId, MenuItem item){  
-        switch(item.getItemId()){
-	        case android.R.id.home:
-	            // app icon in action bar clicked; go home
-	        	this.mBSC.killReceiveData_StopFlg(); //强制终止接收函数
-	        	this.mbThreadStop = true; //终止接收线程
-	        	this.setResult(Activity.RESULT_CANCELED); //返回到主界面
-	        	this.finish();
-	        	return true;
-	        case MEMU_CLEAR: //清除屏幕
-	        	this.mtvDataView.setText("");
-	        	return true;
-	        case MEMU_SET_END_FLG: //设定终止符
-	        	this.selectEndFlg();
-	        	return true;
-	        case MEMU_SAVE_TO_FILE: //保存到文件
-	        	this.saveData2File();
-	        	return true;
-	        case MEMU_CLEAR_CMD_HISTORY: //清除历史命令
-	        	this.clearAutoComplate(this.mactvInput);
-	        	return true;
-	        case MEMU_HELPER: //显示使用向导
-	        	if (this.getString(R.string.language).toString().equals("zh-rCN"))
-	        		this.mtvDataView.setText(this.getStringFormRawFile(R.raw.cmd_line_cn) +"\n\n");
-	        	else if (this.getString(R.string.language).toString().equals("zh-rTW"))
-	        		this.mtvDataView.setText(this.getStringFormRawFile(R.raw.cmd_line_tw) +"\n\n");
-	        	else
-	        		this.mtvDataView.setText(this.getStringFormRawFile(R.raw.cmd_line_en) +"\n");
-	        	return true;
-	        default:
-	        	return super.onMenuItemSelected(featureId, item);
-        }
-    }
-    
+
+	@Override
+	public boolean onOptionsItemSelected(MenuItem item) {
+		switch(item.getItemId()){
+			case android.R.id.home:
+				// app icon in action bar clicked; go home
+				this.mBSC.killReceiveData_StopFlg(); //强制终止接收函数
+				this.mbThreadStop = true; //终止接收线程
+				this.setResult(Activity.RESULT_CANCELED); //返回到主界面
+				this.finish();
+				return true;
+			case MEMU_CLEAR: //清除屏幕
+				this.mtvDataView.setText("");
+				return true;
+			case MEMU_SET_END_FLG: //设定终止符
+				this.selectEndFlg();
+				return true;
+			case MEMU_SAVE_TO_FILE: //保存到文件
+				this.saveData2File();
+				return true;
+			case MEMU_CLEAR_CMD_HISTORY: //清除历史命令
+				this.clearAutoComplate(this.mactvInput);
+				return true;
+			case MEMU_HELPER: //显示使用向导
+				if (this.getString(R.string.language).toString().equals("zh-rCN"))
+					this.mtvDataView.setText(this.getStringFormRawFile(R.raw.cmd_line_cn) +"\n\n");
+				else if (this.getString(R.string.language).toString().equals("zh-rTW"))
+					this.mtvDataView.setText(this.getStringFormRawFile(R.raw.cmd_line_tw) +"\n\n");
+				else
+					this.mtvDataView.setText(this.getStringFormRawFile(R.raw.cmd_line_en) +"\n");
+				return true;
+			default:
+				return super.onOptionsItemSelected(item);
+		}
+	}
+
     /**
      * 按键监听处理
      * @param keyCode
      * @param event
-     * @param data
      */
     @Override
     public boolean onKeyDown(int keyCode, KeyEvent event){
@@ -223,8 +219,8 @@ public class actCmdLine extends BaseCommActivity{
     
 	/**
 	 * 追加数据到数据显示区
-	 * @param byte b 追加的数据类型 TYPE_RXD:接收 / TYPE_TXD:发送
-	 * @param String sData 需要显示的数据
+	 * @param b 追加的数据类型 TYPE_RXD:接收 / TYPE_TXD:发送
+	 * @param sData 需要显示的数据
 	 * @return void
 	 * */
 	private void append2DataView(byte b, String sData){
@@ -243,7 +239,7 @@ public class actCmdLine extends BaseCommActivity{
 	
     /**
      * 设置结束符（对话框）
-     * @param byte bMode 字符显示模式 IO_MODE_HEX / IO_MODE_STRING
+     * byte bMode 字符显示模式 IO_MODE_HEX / IO_MODE_STRING
      * @return void
      * */
 	private void selectEndFlg(){
@@ -341,7 +337,7 @@ public class actCmdLine extends BaseCommActivity{
     
     /**
      * 载入终止符配置信息
-     * @param String sModelName 模块名称
+     * String sModelName 模块名称
      * @return void
      * */
     private void loadProfile(){

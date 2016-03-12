@@ -21,19 +21,19 @@
             android:orientation="horizontal"
             android:layout_width="fill_parent"
             android:layout_height="wrap_content">
-		    <mobi.dzs.android.control.button.RepeatingButton
+		    <com.yanxinwei.bluetoothspppro.control.button.RepeatingButton
 		        android:id="@+id/btn_keyboard_1"
 		        android:text="@string/btn_click_me" 
 		        android:layout_weight="1"
 		        android:layout_width="match_parent"
 		        android:layout_height="wrap_content"/>
-		    <mobi.dzs.android.control.button.RepeatingButton
+		    <com.yanxinwei.bluetoothspppro.control.button.RepeatingButton
 		        android:id="@+id/btn_keyboard_2"
 		        android:text="@string/btn_click_me" 
 		        android:layout_weight="1"
 		        android:layout_width="match_parent"
 		        android:layout_height="wrap_content"/>
-		    <mobi.dzs.android.control.button.RepeatingButton
+		    <com.yanxinwei.bluetoothspppro.control.button.RepeatingButton
 		        android:id="@+id/btn_keyboard_3"
 		        android:text="@string/btn_click_me" 
 		        android:layout_weight="1"
@@ -45,19 +45,19 @@
             android:orientation="horizontal"
             android:layout_width="fill_parent"
             android:layout_height="wrap_content">
-            <mobi.dzs.android.control.button.RepeatingButton
+            <com.yanxinwei.bluetoothspppro.control.button.RepeatingButton
                 android:id="@+id/btn_keyboard_4"
                 android:text="@string/btn_click_me" 
                 android:layout_weight="1"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"/>
-            <mobi.dzs.android.control.button.RepeatingButton
+            <com.yanxinwei.bluetoothspppro.control.button.RepeatingButton
                 android:id="@+id/btn_keyboard_5"
                 android:text="@string/btn_click_me" 
                 android:layout_weight="1"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"/>
-            <mobi.dzs.android.control.button.RepeatingButton
+            <com.yanxinwei.bluetoothspppro.control.button.RepeatingButton
                 android:id="@+id/btn_keyboard_6"
                 android:text="@string/btn_click_me" 
                 android:layout_weight="1"
@@ -70,19 +70,19 @@
             android:orientation="horizontal"
             android:layout_width="fill_parent"
             android:layout_height="wrap_content">
-            <mobi.dzs.android.control.button.RepeatingButton
+            <com.yanxinwei.bluetoothspppro.control.button.RepeatingButton
                 android:id="@+id/btn_keyboard_7"
                 android:text="@string/btn_click_me" 
                 android:layout_weight="1"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"/>
-            <mobi.dzs.android.control.button.RepeatingButton
+            <com.yanxinwei.bluetoothspppro.control.button.RepeatingButton
                 android:id="@+id/btn_keyboard_8"
                 android:text="@string/btn_click_me" 
                 android:layout_weight="1"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"/>
-            <mobi.dzs.android.control.button.RepeatingButton
+            <com.yanxinwei.bluetoothspppro.control.button.RepeatingButton
                 android:id="@+id/btn_keyboard_9"
                 android:text="@string/btn_click_me" 
                 android:layout_weight="1"
@@ -94,19 +94,19 @@
             android:orientation="horizontal"
             android:layout_width="fill_parent"
             android:layout_height="wrap_content">
-            <mobi.dzs.android.control.button.RepeatingButton
+            <com.yanxinwei.bluetoothspppro.control.button.RepeatingButton
                 android:id="@+id/btn_keyboard_10"
                 android:text="@string/btn_click_me" 
                 android:layout_weight="1"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"/>
-            <mobi.dzs.android.control.button.RepeatingButton
+            <com.yanxinwei.bluetoothspppro.control.button.RepeatingButton
                 android:id="@+id/btn_keyboard_11"
                 android:text="@string/btn_click_me" 
                 android:layout_weight="1"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"/>
-            <mobi.dzs.android.control.button.RepeatingButton
+            <com.yanxinwei.bluetoothspppro.control.button.RepeatingButton
                 android:id="@+id/btn_keyboard_12"
                 android:text="@string/btn_click_me" 
                 android:layout_weight="1"

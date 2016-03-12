@@ -252,59 +252,57 @@ public class actKeyBoard extends BaseCommActivity{
         miHelper.setShowAsAction(MenuItem.SHOW_AS_ACTION_NEVER); //一直隐藏
         return super.onCreateOptionsMenu(menu);
     }
-	
-	/**
-	 * 菜单点击后的执行指令
-	 * */
-    @Override
-    public boolean onMenuItemSelected(int featureId, MenuItem item){  
-        switch(item.getItemId()){
-	        case android.R.id.home:
-	            // app icon in action bar clicked; go home
-	        	this.mBSC.killReceiveData_StopFlg(); //强制终止接收函数
-	        	this.mbThreadStop = true; //终止接收线程
-	        	this.setResult(Activity.RESULT_CANCELED); //返回到主界面
-	        	this.finish();
-	        	return true;
-	        case MEMU_CLEAR: //清除屏幕
-	        	this.mtvSendView.setText("");
-	        	this.mtvRecView.setText("");
-	        	return true;
-	        case MENU_SET_KEY_BOARD: //设置键盘
-	        	if (this.mbSetMode){	
-	        		item.setTitle(R.string.menu_set_key_board_start);
-	        		this.mtvSendView.setText(R.string.actKeyBoard_tv_Init);
-	        	}else{	
-	        		item.setTitle(R.string.menu_set_key_board_end);
-	        		this.mtvSendView.setText(R.string.actKeyBoard_tv_set_keyboard_helper);
-	        	}
-	        	this.mbSetMode = !this.mbSetMode;//反转设置模式状态
-	        	return true;
-	        case MENU_SET_LONG_PASS_REPEAT: //设定按钮长按促发频率
-	        	this.selectRepeatFreq();
-	        	return true;
-	        case MEMU_SET_END_FLG: //设定终止符
-	        	this.selectEndFlg();
-	        	return true;
-	        case MEMU_IO_MODE: //设定IO模式
-	        	this.setIOModeDialog();
-	        	return true;
-	        case MEMU_SAVE_TO_FILE: //保存到文件
-	        	this.saveData2File();
-	        	return true;
-	        case MEMU_HELPER: //显示使用向导
-	        	if (this.getString(R.string.language).toString().equals("zh-rCN"))
-	        		this.mtvRecView.setText(this.getStringFormRawFile(R.raw.key_board_cn) +"\n\n");
-	        	else if (this.getString(R.string.language).toString().equals("zh-rTW"))
-	        		this.mtvRecView.setText(this.getStringFormRawFile(R.raw.key_board_tw) +"\n\n");
-	        	else
-	        		this.mtvRecView.setText(this.getStringFormRawFile(R.raw.key_board_en) +"\n");
-	        	return true;
-	        default:
-	        	return super.onMenuItemSelected(featureId, item);
-        }
-    }
-    
+
+	@Override
+	public boolean onOptionsItemSelected(MenuItem item) {
+		switch(item.getItemId()){
+			case android.R.id.home:
+				// app icon in action bar clicked; go home
+				this.mBSC.killReceiveData_StopFlg(); //强制终止接收函数
+				this.mbThreadStop = true; //终止接收线程
+				this.setResult(Activity.RESULT_CANCELED); //返回到主界面
+				this.finish();
+				return true;
+			case MEMU_CLEAR: //清除屏幕
+				this.mtvSendView.setText("");
+				this.mtvRecView.setText("");
+				return true;
+			case MENU_SET_KEY_BOARD: //设置键盘
+				if (this.mbSetMode){
+					item.setTitle(R.string.menu_set_key_board_start);
+					this.mtvSendView.setText(R.string.actKeyBoard_tv_Init);
+				}else{
+					item.setTitle(R.string.menu_set_key_board_end);
+					this.mtvSendView.setText(R.string.actKeyBoard_tv_set_keyboard_helper);
+				}
+				this.mbSetMode = !this.mbSetMode;//反转设置模式状态
+				return true;
+			case MENU_SET_LONG_PASS_REPEAT: //设定按钮长按促发频率
+				this.selectRepeatFreq();
+				return true;
+			case MEMU_SET_END_FLG: //设定终止符
+				this.selectEndFlg();
+				return true;
+			case MEMU_IO_MODE: //设定IO模式
+				this.setIOModeDialog();
+				return true;
+			case MEMU_SAVE_TO_FILE: //保存到文件
+				this.saveData2File();
+				return true;
+			case MEMU_HELPER: //显示使用向导
+				if (this.getString(R.string.language).toString().equals("zh-rCN"))
+					this.mtvRecView.setText(this.getStringFormRawFile(R.raw.key_board_cn) +"\n\n");
+				else if (this.getString(R.string.language).toString().equals("zh-rTW"))
+					this.mtvRecView.setText(this.getStringFormRawFile(R.raw.key_board_tw) +"\n\n");
+				else
+					this.mtvRecView.setText(this.getStringFormRawFile(R.raw.key_board_en) +"\n");
+				return true;
+			default:
+				return super.onOptionsItemSelected(item);
+		}
+	}
+
+
     /**
      * 按键监听处理
      * @param keyCode
@@ -324,7 +322,7 @@ public class actKeyBoard extends BaseCommActivity{
     
     /**
      * 设置结束符（对话框）
-     * @param byte bMode 字符显示模式 IO_MODE_HEX / IO_MODE_STRING
+     * byte bMode 字符显示模式 IO_MODE_HEX / IO_MODE_STRING
      * @return void
      * */
 	private void selectEndFlg(){
@@ -467,7 +465,7 @@ public class actKeyBoard extends BaseCommActivity{
     
     /**
      * 设定按钮长按的重复频率
-     * @param long interval 毫秒
+     * @param interval 毫秒
      * @return void
      * */
     private void setBtnRepeatFreq(int interval){
@@ -479,7 +477,7 @@ public class actKeyBoard extends BaseCommActivity{
 	
     /**
      * 载入终止符配置信息
-     * @param String sModelName 模块名称
+     * String sModelName 模块名称
      * @return void
      * */
     private void loadProfile(){
@@ -530,7 +528,7 @@ public class actKeyBoard extends BaseCommActivity{
     
     /**
      * 统一处理按钮的单击事件
-     * @param View v 按钮的单机事件处理
+     * @param v 按钮的单机事件处理
      * @return void
      * */
     public void onBtnClick_Array(View v, TIRGGER_TYPE tt){
@@ -586,7 +584,7 @@ public class actKeyBoard extends BaseCommActivity{
     
     /**
      * 设置按钮键盘值的处理
-     * @param int iId 按钮的ID序号
+     * @param iId 按钮的ID序号
      * @return void
      * */
     private void setBtnKeyboard(int iId){

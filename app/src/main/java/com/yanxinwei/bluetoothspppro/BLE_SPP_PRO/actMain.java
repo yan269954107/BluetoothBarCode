@@ -15,6 +15,7 @@ import android.os.Build;
 import android.os.Bundle;
 import android.os.Parcelable;
 import android.os.SystemClock;
+import android.support.v7.app.AppCompatActivity;
 import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
@@ -26,8 +27,6 @@ import android.widget.Toast;
 
 import com.yanxinwei.bluetoothspppro.R;
 import com.yanxinwei.bluetoothspppro.bluetooth.BluetoothCtrl;
-import com.yanxinwei.bluetoothspppro.storage.CKVStorage;
-import com.yanxinwei.bluetoothspppro.storage.CSharedPreferences;
 
 import java.util.ArrayList;
 import java.util.Hashtable;
@@ -40,7 +39,7 @@ import java.util.Hashtable;
  * @author JerryLi
  *
  */
-public class actMain extends Activity{
+public class actMain extends AppCompatActivity{
 	/**CONST: scan device menu id*/
 	public static final byte MEMU_RESCAN = 0x01;
 	/**CONST: exit application*/
@@ -124,36 +123,43 @@ public class actMain extends Activity{
         //扫描设备
         MenuItem miScan = menu.add(0, MEMU_RESCAN, 0, getString(R.string.actMain_menu_rescan));
         miScan.setShowAsAction(MenuItem.SHOW_AS_ACTION_IF_ROOM);
-//        //进入关于页面
-//        MenuItem miAbout = menu.add(0, MEMU_ABOUT, 1, getString(R.string.menu_about));
-//        miAbout.setShowAsAction(MenuItem.SHOW_AS_ACTION_NEVER);
-//        //退出系统
-//        MenuItem miExit = menu.add(0, MEMU_EXIT, 2, getString(R.string.menu_close));
-//        miExit.setShowAsAction(MenuItem.SHOW_AS_ACTION_NEVER);
         return super.onCreateOptionsMenu(menu);
     }
-	
-	/**
-	 * 菜单点击后的执行指令
-	 * */
-    @Override
-    public boolean onMenuItemSelected(int featureId, MenuItem item) {  
-        switch(item.getItemId()) {  
+
+	@Override
+	public boolean onOptionsItemSelected(MenuItem item) {
+		        switch(item.getItemId()) {
 	        case MEMU_RESCAN: //开始扫描
 	        	this.mGP.closeConn();//关闭连接
 	        	this.initActivityView(); //进入扫描时，显示界面初始化
 	        	this.openDiscovery(); //进入搜索页面
 	        	return true;
+	        default:
+	        	return super.onOptionsItemSelected(item);
+        }
+	}
+
+	/**
+	 * 菜单点击后的执行指令
+	 * */
+//    @Override
+//    public boolean onMenuItemSelected(int featureId, MenuItem item) {
+//        switch(item.getItemId()) {
+//	        case MEMU_RESCAN: //开始扫描
+//	        	this.mGP.closeConn();//关闭连接
+//	        	this.initActivityView(); //进入扫描时，显示界面初始化
+//	        	this.openDiscovery(); //进入搜索页面
+//	        	return true;
 //	        case MEMU_EXIT: //退出程序
 //	        	this.finish();
 //	        	return true;
 //	        case MEMU_ABOUT: //打开关于页面
 //	        	this.openAbout();
 //	        	return true;
-	        default:
-	        	return super.onMenuItemSelected(featureId, item);
-        }
-    }
+//	        default:
+//	        	return super.onMenuItemSelected(featureId, item);
+//        }
+//    }
 	
 	/**
 	 * 页面构造
@@ -167,7 +173,6 @@ public class actMain extends Activity{
 			Toast.makeText(this, "抱歉该设备未发现蓝牙模块", Toast.LENGTH_LONG).show();
 			this.finish();
 		}
-		this.initFirstInstallTimestemp(); //记录首次安装的时间
 
 		this.mtvDeviceInfo = (TextView)this.findViewById(R.id.actMain_tv_device_info);
 		this.mtvServiceUUID = (TextView)this.findViewById(R.id.actMain_tv_service_uuid);
@@ -181,16 +186,6 @@ public class actMain extends Activity{
 		this.mGP = ((globalPool)this.getApplicationContext()); //得到全局对象的引用
 		
 		new startBluetoothDeviceTask().execute(""); //启动蓝牙设备
-	}
-	
-	/**
-	 * 初始化首次安装程序的时间
-	 */
-	private void initFirstInstallTimestemp(){
-		CKVStorage oDS = new CSharedPreferences(this);
-		if (oDS.getLongVal("SYSTEM", "FIRST_INSTALL_TIMESTEMP") == 0){
-			oDS.setVal("SYSTEM", "FIRST_INSTALL_TIMESTEMP", System.currentTimeMillis()).saveStorage();
-		}
 	}
 	
 	/**
