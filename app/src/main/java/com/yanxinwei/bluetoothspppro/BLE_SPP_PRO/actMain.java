@@ -140,28 +140,6 @@ public class actMain extends AppCompatActivity{
 	}
 
 	/**
-	 * 菜单点击后的执行指令
-	 * */
-//    @Override
-//    public boolean onMenuItemSelected(int featureId, MenuItem item) {
-//        switch(item.getItemId()) {
-//	        case MEMU_RESCAN: //开始扫描
-//	        	this.mGP.closeConn();//关闭连接
-//	        	this.initActivityView(); //进入扫描时，显示界面初始化
-//	        	this.openDiscovery(); //进入搜索页面
-//	        	return true;
-//	        case MEMU_EXIT: //退出程序
-//	        	this.finish();
-//	        	return true;
-//	        case MEMU_ABOUT: //打开关于页面
-//	        	this.openAbout();
-//	        	return true;
-//	        default:
-//	        	return super.onMenuItemSelected(featureId, item);
-//        }
-//    }
-	
-	/**
 	 * 页面构造
 	 * */
 	@Override

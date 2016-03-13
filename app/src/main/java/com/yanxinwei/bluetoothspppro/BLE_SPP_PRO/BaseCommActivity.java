@@ -89,7 +89,7 @@ public class BaseCommActivity extends BaseActivity
 	/**
 	 * 启用数据统计状态条
 	 * @return void
-	 * @see 使用时需要在布局文件中加入以下内容:<br/>
+	 * 使用时需要在布局文件中加入以下内容:<br/>
 	    &lt;include <br/>
 	        android:layout_width="match_parent"<br/>
 	        android:layout_height="wrap_content"<br/>
@@ -107,32 +107,32 @@ public class BaseCommActivity extends BaseActivity
      * 刷新数据统计状态条-发送统计值<br/>
      *  备注：同时会刷新运行时间显示值
      * @return void
-     * @see 必须使用 usedDataCount()以后才能使用这个函数
+     * 必须使用 usedDataCount()以后才能使用这个函数
      * */
 	protected void refreshTxdCount(){
 		long lTmp = 0;
 		if (null != this.mtvTxdCount)
 		{
 			lTmp = this.mBSC.getTxd();
-	    	this.mtvTxdCount.setText(String.format(getString(R.string.templet_txd, lTmp)));
+	    	this.mtvTxdCount.setText(getString(R.string.templet_txd, lTmp));
 	    	lTmp = this.mBSC.getConnectHoldTime();
-	    	this.mtvHoleRun.setText(String.format(getString(R.string.templet_hold_time, lTmp)));
+	    	this.mtvHoleRun.setText(getString(R.string.templet_hold_time, lTmp));
 		}
     }
 	
     /**
      * 刷新数据统计状态条-接收统计值
      * @return void
-     * @see 必须使用 usedDataCount()以后才能使用这个函数
+     * 必须使用 usedDataCount()以后才能使用这个函数
      * */
 	protected void refreshRxdCount(){
 		long lTmp = 0;
 		if (null != this.mtvRxdCount)
 		{
 			lTmp = this.mBSC.getRxd();
-	    	this.mtvRxdCount.setText(String.format(getString(R.string.templet_rxd, lTmp)));
+	    	this.mtvRxdCount.setText(getString(R.string.templet_rxd, lTmp));
 	    	lTmp = this.mBSC.getConnectHoldTime();
-	    	this.mtvHoleRun.setText(String.format(getString(R.string.templet_hold_time, lTmp)));
+	    	this.mtvHoleRun.setText(getString(R.string.templet_hold_time, lTmp));
 		}
     }
 	
@@ -140,13 +140,13 @@ public class BaseCommActivity extends BaseActivity
      * 刷新数据统计状态条-运行时间<br/>
      *  备注：同时会刷新运行时间显示值
      * @return void
-     * @see 必须使用 usedDataCount()以后才能使用这个函数
+     * 必须使用 usedDataCount()以后才能使用这个函数
      * */
 	protected void refreshHoldTime(){
 		if (null != this.mtvHoleRun)
 		{
 			long lTmp = this.mBSC.getConnectHoldTime();
-	    	this.mtvHoleRun.setText(String.format(getString(R.string.templet_hold_time, lTmp)));
+	    	this.mtvHoleRun.setText(getString(R.string.templet_hold_time, lTmp));
 		}
     }
 	
@@ -215,7 +215,7 @@ public class BaseCommActivity extends BaseActivity
 	
     /**
      * 保存用于自动完成控件的命令历史字
-     * @param String sClass 所属的类一般为this.getLocalClassName()
+     * @param sClass 所属的类一般为this.getLocalClassName()
      * @return void
      * */
     protected void saveAutoComplateCmdHistory(String sClass){
@@ -235,8 +235,8 @@ public class BaseCommActivity extends BaseActivity
     
     /**
      * 取出用于自动完成控件的命令历史字
-     * @param String sClass 所属的类一般为this.getLocalClassName()
-     * @param AutoCompleteTextView v 自动完成控件的引用
+     * @param sClass 所属的类一般为this.getLocalClassName()
+     * @param v 自动完成控件的引用
      * @return void
      * */
     protected void loadAutoComplateCmdHistory(String sClass, AutoCompleteTextView v){
@@ -256,8 +256,8 @@ public class BaseCommActivity extends BaseActivity
     
     /**
      * 给自动完成控件增加一个命令历史字
-     * @param String sData 要追加的数据
-     * @param AutoCompleteTextView v 自动完成控件的引用
+     * @param sData 要追加的数据
+     * @param v 自动完成控件的引用
      * @return void
      * @see 1、必须在onDestroy()中使用saveAutoComplateCmdHistory()保存自动完成值，否则新增的内容会在下次启动时丢失；<br/>
      * 2、在启动时，用loadAutoComplateCmdHistory()载入之前保存的历史值；
@@ -276,7 +276,7 @@ public class BaseCommActivity extends BaseActivity
     
     /**
      * 清除自动完成控件中的命令历史字内容
-     * @param AutoCompleteTextView v 自动完成控件的引用
+     * @param v 自动完成控件的引用
      * @return void
      * */
     protected void clearAutoComplate(AutoCompleteTextView v){

@@ -41,6 +41,7 @@
     <string name="actCmdLine_dialog_title_end_flg">设置命令结束符</string>
     <string name="actCmdLine_et_hint_end_flg_val">指令结束符(HEX格式)</string>
     <string name="actKeyBoard_name">键盘模式</string>
+    <string name="mode_control_equipment">控制设备</string>
     <string name="actKeyBoard_tv_Init">点击对应的按钮，发送当前按钮中设定的指令。需要设置按钮的属性，可选择菜单中的【配置键盘值】。\n</string>
     <string name="actKeyBoard_tv_set_btnname">显示名</string>
     <string name="actKeyBoard_tv_set_btnname_hint">按钮的显示名字</string>

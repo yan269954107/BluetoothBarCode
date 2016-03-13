@@ -21,6 +21,7 @@
         <activity android:name=".MainActivity">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN"/>
+
                 <category android:name="android.intent.category.LAUNCHER"/>
             </intent-filter>
         </activity>
@@ -51,6 +52,8 @@
             android:label="@string/actKeyBoard_name"
             android:launchMode="singleTop"
             android:screenOrientation="portrait"/>
+        <activity android:name=".activity.ControlEquipmentActivity">
+        </activity>
     </application>
 
 </manifest>

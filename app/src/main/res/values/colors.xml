@@ -7,4 +7,8 @@
     <color name="translucent_bg">#00000000</color>
 
     <color name="color_black">#000000</color>
+    <color name="white">#ffffff</color>
+
+    <color name="bg_male_story_btn">#90c5f0</color>
+    <color name="bg_male_story_btn_pressed">#70c5f0</color>
 </resources>

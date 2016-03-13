@@ -9,4 +9,9 @@
 		<item name="colorAccent">@color/colorAccent</item>
 	</style>
 
+	<style name="my_btn_normal_style">
+		<item name="android:background">@drawable/bg_male_story_button</item>
+		<item name="android:textColor">@color/white</item>
+	</style>
+
 </resources>
