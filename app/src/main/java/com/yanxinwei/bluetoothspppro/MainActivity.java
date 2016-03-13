@@ -8,6 +8,7 @@ import android.widget.ImageButton;
 import com.yanxinwei.bluetoothspppro.BLE_SPP_PRO.actMain;
 import com.yanxinwei.bluetoothspppro.BLE_SPP_PRO.globalPool;
 import com.yanxinwei.bluetoothspppro.activity.ControlEquipmentActivity;
+import com.yanxinwei.bluetoothspppro.activity.ImportTaskActivity;
 import com.yanxinwei.bluetoothspppro.core.BaseActivity;
 
 import butterknife.Bind;
@@ -48,7 +49,7 @@ public class MainActivity extends BaseActivity implements View.OnClickListener{
                 intent = new Intent(this, actMain.class);
                 break;
             case R.id.btn_import_task:
-
+                intent = new Intent(this, ImportTaskActivity.class);
                 break;
             case R.id.btn_testing:
 
