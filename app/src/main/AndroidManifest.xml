@@ -52,8 +52,10 @@
             android:label="@string/actKeyBoard_name"
             android:launchMode="singleTop"
             android:screenOrientation="portrait"/>
-        <activity android:name=".activity.ControlEquipmentActivity">
-        </activity>
+        <activity
+            android:name=".activity.ControlEquipmentActivity"
+            android:screenOrientation="portrait"
+            android:launchMode="singleTop"/>
     </application>
 
 </manifest>

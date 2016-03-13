@@ -155,13 +155,8 @@ public class BaseCommActivity extends BaseActivity
 	 * @return void
 	 * */
 	protected void initIO_Mode(){
-		this.mbtInputMode = (byte)this.mDS.getIntVal(KEY_IO_MODE, "input_mode");
-		if (this.mbtInputMode == 0)
-			this.mbtInputMode = BluetoothSppClient.IO_MODE_STRING;
-		
-		this.mbtOutputMode = (byte)this.mDS.getIntVal(KEY_IO_MODE, "output_mode");
-		if (this.mbtOutputMode == 0)
-			this.mbtOutputMode = BluetoothSppClient.IO_MODE_STRING;
+		this.mbtInputMode = BluetoothSppClient.IO_MODE_STRING;
+		this.mbtOutputMode = BluetoothSppClient.IO_MODE_STRING;
     	mBSC.setRxdMode(mbtInputMode);
     	mBSC.setTxdMode(mbtOutputMode);
 	}

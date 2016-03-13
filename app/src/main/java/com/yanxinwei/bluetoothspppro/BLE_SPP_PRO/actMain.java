@@ -26,6 +26,7 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import com.yanxinwei.bluetoothspppro.R;
+import com.yanxinwei.bluetoothspppro.activity.ControlEquipmentActivity;
 import com.yanxinwei.bluetoothspppro.bluetooth.BluetoothCtrl;
 
 import java.util.ArrayList;
@@ -312,7 +313,7 @@ public class actMain extends AppCompatActivity{
 	 * */
 	public void onClickBtnKeyBoardMode(View v){
 		//进入键盘模式界面
-		Intent intent = new Intent(this, actKeyBoard.class);
+		Intent intent = new Intent(this, ControlEquipmentActivity.class);
 		this.startActivityForResult(intent, REQUEST_KEY_BOARD); //等待返回搜索结果
 	}
 	

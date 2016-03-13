@@ -21,97 +21,40 @@
             android:orientation="horizontal"
             android:layout_width="fill_parent"
             android:layout_height="wrap_content">
-            <com.yanxinwei.bluetoothspppro.control.button.RepeatingButton
-                android:id="@+id/btn_keyboard_1"
-                android:text="@string/btn_click_me"
+            <Button
+                android:id="@+id/btn_ignite_fid"
+                android:text="@string/control_ignite_fid"
                 android:layout_weight="1"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"/>
-            <com.yanxinwei.bluetoothspppro.control.button.RepeatingButton
-                android:id="@+id/btn_keyboard_2"
-                android:text="@string/btn_click_me"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                style="@style/my_btn_normal_style"/>
+            <Button
+                android:id="@+id/btn_pump_on"
+                android:text="@string/control_pump_on"
                 android:layout_weight="1"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"/>
-            <com.yanxinwei.bluetoothspppro.control.button.RepeatingButton
-                android:id="@+id/btn_keyboard_3"
-                android:text="@string/btn_click_me"
-                android:layout_weight="1"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"/>
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                style="@style/my_btn_normal_style"/>
         </LinearLayout>
 
         <LinearLayout
             android:orientation="horizontal"
             android:layout_width="fill_parent"
             android:layout_height="wrap_content">
-            <com.yanxinwei.bluetoothspppro.control.button.RepeatingButton
-                android:id="@+id/btn_keyboard_4"
-                android:text="@string/btn_click_me"
+            <Button
+                android:id="@+id/btn_pump_off"
+                android:text="@string/control_pump_off"
                 android:layout_weight="1"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"/>
-            <com.yanxinwei.bluetoothspppro.control.button.RepeatingButton
-                android:id="@+id/btn_keyboard_5"
-                android:text="@string/btn_click_me"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                style="@style/my_btn_normal_style"/>
+            <Button
+                android:id="@+id/btn_reboot"
+                android:text="@string/control_reboot"
                 android:layout_weight="1"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"/>
-            <com.yanxinwei.bluetoothspppro.control.button.RepeatingButton
-                android:id="@+id/btn_keyboard_6"
-                android:text="@string/btn_click_me"
-                android:layout_weight="1"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"/>
-        </LinearLayout>
-
-
-        <LinearLayout
-            android:orientation="horizontal"
-            android:layout_width="fill_parent"
-            android:layout_height="wrap_content">
-            <com.yanxinwei.bluetoothspppro.control.button.RepeatingButton
-                android:id="@+id/btn_keyboard_7"
-                android:text="@string/btn_click_me"
-                android:layout_weight="1"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"/>
-            <com.yanxinwei.bluetoothspppro.control.button.RepeatingButton
-                android:id="@+id/btn_keyboard_8"
-                android:text="@string/btn_click_me"
-                android:layout_weight="1"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"/>
-            <com.yanxinwei.bluetoothspppro.control.button.RepeatingButton
-                android:id="@+id/btn_keyboard_9"
-                android:text="@string/btn_click_me"
-                android:layout_weight="1"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"/>
-        </LinearLayout>
-
-        <LinearLayout
-            android:orientation="horizontal"
-            android:layout_width="fill_parent"
-            android:layout_height="wrap_content">
-            <com.yanxinwei.bluetoothspppro.control.button.RepeatingButton
-                android:id="@+id/btn_keyboard_10"
-                android:text="@string/btn_click_me"
-                android:layout_weight="1"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"/>
-            <com.yanxinwei.bluetoothspppro.control.button.RepeatingButton
-                android:id="@+id/btn_keyboard_11"
-                android:text="@string/btn_click_me"
-                android:layout_weight="1"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"/>
-            <com.yanxinwei.bluetoothspppro.control.button.RepeatingButton
-                android:id="@+id/btn_keyboard_12"
-                android:text="@string/btn_click_me"
-                android:layout_weight="1"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"/>
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                style="@style/my_btn_normal_style"/>
         </LinearLayout>
     </LinearLayout>
 

@@ -100,4 +100,10 @@
     <string name="msg_helper_endflg_nothing">当前未设置结束符，如果需要更换指令结束符请选择菜单中的【设置结束符】进行设定；\n</string>
     <string name="tips_click_to_hide">点击后隐藏</string>
     <string name="tips_click_to_show">点击后显示</string>
+
+
+    <string name="control_ignite_fid">点燃FID</string>
+    <string name="control_pump_on">启动泵</string>
+    <string name="control_pump_off">停止泵</string>
+    <string name="control_reboot">重启(待确认)</string>
 </resources>

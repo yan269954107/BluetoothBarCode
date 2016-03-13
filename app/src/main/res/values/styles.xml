@@ -12,6 +12,7 @@
 	<style name="my_btn_normal_style">
 		<item name="android:background">@drawable/bg_male_story_button</item>
 		<item name="android:textColor">@color/white</item>
+		<item name="android:layout_margin">10dp</item>
 	</style>
 
 </resources>
