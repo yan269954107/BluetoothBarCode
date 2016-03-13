@@ -112,14 +112,20 @@ public class ControlEquipmentActivity extends BaseCommActivity implements View.O
         findViewById(R.id.btn_pump_off).setOnClickListener(this);
         findViewById(R.id.btn_reboot).setOnClickListener(this);
 
-        this.enabledBack(); //激活回退按钮
-        this.initIO_Mode(); //初始化输入输出模式
-        this.usedDataCount(); //启用数据统计状态条
-        this.setEndFlg(); //载入终止符
+        try {
+            this.enabledBack(); //激活回退按钮
+            this.initIO_Mode(); //初始化输入输出模式
+            this.usedDataCount(); //启用数据统计状态条
+            this.setEndFlg(); //载入终止符
 
-        //初始化结束，启动接收线程
-        new receiveTask()
-                .executeOnExecutor(FULL_TASK_EXECUTOR);
+            //初始化结束，启动接收线程
+            new receiveTask()
+                    .executeOnExecutor(FULL_TASK_EXECUTOR);
+        }catch (NullPointerException e){
+            T.showShort(this, "请先连接设备");
+            finish();
+        }
+
     }
 
     /**
@@ -128,7 +134,8 @@ public class ControlEquipmentActivity extends BaseCommActivity implements View.O
     @Override
     public void onDestroy() {
         super.onDestroy();
-        this.mBSC.killReceiveData_StopFlg(); //强制终止接收函数
+        if (null != mBSC)
+            mBSC.killReceiveData_StopFlg(); //强制终止接收函数
     }
 
     /**

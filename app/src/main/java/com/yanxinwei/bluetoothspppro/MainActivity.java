@@ -6,6 +6,8 @@ import android.view.View;
 import android.widget.ImageButton;
 
 import com.yanxinwei.bluetoothspppro.BLE_SPP_PRO.actMain;
+import com.yanxinwei.bluetoothspppro.BLE_SPP_PRO.globalPool;
+import com.yanxinwei.bluetoothspppro.activity.ControlEquipmentActivity;
 import com.yanxinwei.bluetoothspppro.core.BaseActivity;
 
 import butterknife.Bind;
@@ -52,10 +54,21 @@ public class MainActivity extends BaseActivity implements View.OnClickListener{
 
                 break;
             case R.id.btn_control_equipment:
-
+                intent = new Intent(this, ControlEquipmentActivity.class);
                 break;
         }
         if (null != intent)
             startActivity(intent);
+    }
+
+    @Override
+    protected void onDestroy() {
+        super.onDestroy();
+
+        ((globalPool)this.getApplicationContext()).closeConn();//关闭连接
+
+        //检查如果进入前蓝牙是关闭的状态，则退出时关闭蓝牙
+//        if (null != mBT && !this.mbBleStatusBefore)
+//            mBT.disable();
     }
 }

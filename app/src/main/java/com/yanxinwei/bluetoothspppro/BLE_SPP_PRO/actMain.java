@@ -185,11 +185,11 @@ public class actMain extends AppCompatActivity{
 	protected void onDestroy() {
 		super.onDestroy();
 		
-		this.mGP.closeConn();//关闭连接
-		
-		//检查如果进入前蓝牙是关闭的状态，则退出时关闭蓝牙
-		if (null != mBT && !this.mbBleStatusBefore)
-			mBT.disable();
+//		this.mGP.closeConn();//关闭连接
+//
+//		//检查如果进入前蓝牙是关闭的状态，则退出时关闭蓝牙
+//		if (null != mBT && !this.mbBleStatusBefore)
+//			mBT.disable();
 	}
 
 	/**
