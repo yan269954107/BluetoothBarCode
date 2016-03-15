@@ -1,9 +1,11 @@
 package com.yanxinwei.bluetoothspppro.activity;
 
 import android.app.Activity;
+import android.app.ProgressDialog;
 import android.content.res.Configuration;
 import android.os.AsyncTask;
 import android.os.Bundle;
+import android.os.Handler;
 import android.os.SystemClock;
 import android.view.KeyEvent;
 import android.view.Menu;
@@ -23,6 +25,11 @@ public class ControlEquipmentActivity extends BaseCommActivity implements View.O
     private static final String IGNITE_FID = "ignite";
     private static final String PUMP_ON = "pump on";
     private static final String PUMP_OFF = "pump off";
+
+    private static final String SCREEN = "screen";
+    private static final String PUSH_1 = "push 1";
+    private static final String QUIT = "quit";
+    private static final String PUSH_EX = "push ex";
 
     /**
      * 当前使用的结束符
@@ -58,6 +65,10 @@ public class ControlEquipmentActivity extends BaseCommActivity implements View.O
      * 当前是否隐藏发送区
      */
     private boolean mbHideSendArea = false;
+
+    private ProgressDialog mProgressDialog;
+
+    private Handler mHandler = new Handler();
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -213,6 +224,9 @@ public class ControlEquipmentActivity extends BaseCommActivity implements View.O
     private void Send(String sData) {
         if (!sData.equals("")) {
             String sSend = sData;
+            if (sSend.equals(QUIT) && mProgressDialog != null && mProgressDialog.isShowing()){
+                mProgressDialog.dismiss();
+            }
             int iRet = 0;
             if (!this.msEndFlg.isEmpty()) //加入结束符的处理
                 iRet = this.mBSC.Send(sSend.concat(this.msEndFlg));
@@ -260,7 +274,10 @@ public class ControlEquipmentActivity extends BaseCommActivity implements View.O
     public void onClick(View v) {
         switch (v.getId()){
             case R.id.btn_ignite_fid:
-                Send(IGNITE_FID);
+//                Send(IGNITE_FID);
+                sendCombinationOrders(
+                        new String[]{SCREEN, PUSH_1, QUIT},
+                        new int[]{0, 200, 2200});
                 break;
             case R.id.btn_pump_on:
                 Send(PUMP_ON);
@@ -269,8 +286,24 @@ public class ControlEquipmentActivity extends BaseCommActivity implements View.O
                 Send(PUMP_OFF);
                 break;
             case R.id.btn_reboot:
-                T.showShort(this, "待确定");
+                sendCombinationOrders(
+                        new String[]{SCREEN, PUSH_EX, QUIT},
+                        new int[]{0, 200, 2200});
                 break;
+        }
+    }
+
+    private void sendCombinationOrders(final String[] orders,final int[] waitingTimes){
+        mProgressDialog = ProgressDialog.show(this, null, "正在发送指令", false, false);
+        int i = 0;
+        for (final String order : orders){
+            mHandler.postDelayed(new Runnable() {
+                @Override
+                public void run() {
+                    Send(order);
+                }
+            },waitingTimes[i]);
+            i++;
         }
     }
 

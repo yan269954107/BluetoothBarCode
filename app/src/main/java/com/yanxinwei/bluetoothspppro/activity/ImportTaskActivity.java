@@ -12,8 +12,19 @@ import android.widget.Toast;
 
 import com.yanxinwei.bluetoothspppro.R;
 import com.yanxinwei.bluetoothspppro.core.BaseActivity;
+import com.yanxinwei.bluetoothspppro.util.L;
 import com.yanxinwei.bluetoothspppro.util.SPUtils;
 import com.yanxinwei.bluetoothspppro.util.T;
+
+import org.apache.poi.ss.usermodel.Cell;
+import org.apache.poi.ss.usermodel.Row;
+import org.apache.poi.ss.usermodel.Sheet;
+import org.apache.poi.xssf.usermodel.XSSFWorkbook;
+
+import java.io.FileInputStream;
+import java.io.FileNotFoundException;
+import java.io.IOException;
+import java.io.InputStream;
 
 import butterknife.Bind;
 import butterknife.ButterKnife;
@@ -82,10 +93,10 @@ public class ImportTaskActivity extends BaseActivity implements View.OnClickList
     public boolean onOptionsItemSelected(MenuItem item) {
         switch (item.getItemId()){
             case MENU_ID_IMPORT_TASK:
-                T.showShort(this, "导入检测任务");
+                showFileSelected();
                 return true;
             case MENU_ID_IMPORT_REPEAT_TASK:
-                T.showShort(this, "导入复检任务");
+                showFileSelected();
                 return  true;
             default:
                 return super.onOptionsItemSelected(item);
@@ -124,10 +135,26 @@ public class ImportTaskActivity extends BaseActivity implements View.OnClickList
             if (resultCode == RESULT_OK){
                 Uri uri = data.getData();
                 T.showShort(this, uri.getPath());
+                test(uri.getPath());
             }else {
                 T.showShort(this, "请选择一个需要导入的任务文件");
             }
         }
+    }
 
+    private void  test(String path){
+        try {
+            InputStream is = new FileInputStream(path);
+            XSSFWorkbook workbook = new XSSFWorkbook(is);
+            Sheet sheet = workbook.getSheetAt(1);
+            Row row = sheet.getRow(0);
+            Cell cell = row.getCell(0);
+            String content = cell.getStringCellValue();
+            L.d("@@@@"+content);
+        } catch (FileNotFoundException e) {
+            e.printStackTrace();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
     }
 }

@@ -1,13 +1,13 @@
 package com.yanxinwei.bluetoothspppro.BLE_SPP_PRO;
 
-import android.app.Application;
+import android.support.multidex.MultiDexApplication;
 
 import com.yanxinwei.bluetoothspppro.R;
 import com.yanxinwei.bluetoothspppro.bluetooth.BluetoothSppClient;
 import com.yanxinwei.bluetoothspppro.storage.CJsonStorage;
 import com.yanxinwei.bluetoothspppro.storage.CKVStorage;
 
-public class globalPool extends Application
+public class globalPool extends MultiDexApplication
 {
 	/**蓝牙SPP通信连接对象*/
 	public BluetoothSppClient mBSC = null;
