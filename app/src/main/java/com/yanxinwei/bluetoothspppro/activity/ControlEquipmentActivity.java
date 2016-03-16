@@ -30,6 +30,7 @@ public class ControlEquipmentActivity extends BaseCommActivity implements View.O
     private static final String PUSH_1 = "push 1";
     private static final String QUIT = "quit";
     private static final String PUSH_EX = "push ex";
+    private static final String LOG_START = "log start";
 
     /**
      * 当前使用的结束符
@@ -276,8 +277,8 @@ public class ControlEquipmentActivity extends BaseCommActivity implements View.O
             case R.id.btn_ignite_fid:
 //                Send(IGNITE_FID);
                 sendCombinationOrders(
-                        new String[]{SCREEN, PUSH_1, QUIT},
-                        new int[]{0, 200, 2200});
+                        new String[]{SCREEN, PUSH_1, QUIT, LOG_START},
+                        new int[]{0, 200, 2200, 2400});
                 break;
             case R.id.btn_pump_on:
                 Send(PUMP_ON);
@@ -287,8 +288,8 @@ public class ControlEquipmentActivity extends BaseCommActivity implements View.O
                 break;
             case R.id.btn_reboot:
                 sendCombinationOrders(
-                        new String[]{SCREEN, PUSH_EX, QUIT},
-                        new int[]{0, 200, 2200});
+                        new String[]{SCREEN, PUSH_EX, QUIT, LOG_START},
+                        new int[]{0, 200, 2200, 2400});
                 break;
         }
     }
