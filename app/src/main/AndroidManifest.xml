@@ -56,8 +56,8 @@
             android:name=".activity.ControlEquipmentActivity"
             android:launchMode="singleTop"
             android:screenOrientation="portrait"/>
-        <activity android:name=".activity.ImportTaskActivity">
-        </activity>
+        <activity android:name=".activity.ImportTaskActivity"
+                  android:label="检测任务"/>
     </application>
 
 </manifest>

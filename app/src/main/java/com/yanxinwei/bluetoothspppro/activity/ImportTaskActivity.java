@@ -1,17 +1,21 @@
 package com.yanxinwei.bluetoothspppro.activity;
 
+import android.app.ProgressDialog;
 import android.content.Intent;
 import android.net.Uri;
 import android.os.Bundle;
-import android.support.v7.widget.RecyclerView;
+import android.os.Handler;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
+import android.widget.ListView;
 import android.widget.TextView;
 import android.widget.Toast;
 
 import com.yanxinwei.bluetoothspppro.R;
+import com.yanxinwei.bluetoothspppro.adapter.TaskAdapter;
 import com.yanxinwei.bluetoothspppro.core.BaseActivity;
+import com.yanxinwei.bluetoothspppro.model.NormalTask;
 import com.yanxinwei.bluetoothspppro.util.L;
 import com.yanxinwei.bluetoothspppro.util.SPUtils;
 import com.yanxinwei.bluetoothspppro.util.T;
@@ -22,9 +26,10 @@ import org.apache.poi.ss.usermodel.Sheet;
 import org.apache.poi.xssf.usermodel.XSSFWorkbook;
 
 import java.io.FileInputStream;
-import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.InputStream;
+import java.lang.reflect.InvocationTargetException;
+import java.util.ArrayList;
 
 import butterknife.Bind;
 import butterknife.ButterKnife;
@@ -43,8 +48,15 @@ public class ImportTaskActivity extends BaseActivity implements View.OnClickList
 
     private String taskPath;
 
-    @Bind(R.id.task_list)
-    RecyclerView mTaskList;
+    private ArrayList<NormalTask> mNormalTasks = new ArrayList<>(100);
+
+    private ProgressDialog mProgressDialog;
+    private Handler mHandler = new Handler();
+
+    private TaskAdapter mAdapter;
+
+    @Bind(R.id.list_task)
+    ListView mTaskList;
 
     @Bind(R.id.empty_view)
     TextView mEmptyView;
@@ -55,6 +67,8 @@ public class ImportTaskActivity extends BaseActivity implements View.OnClickList
         setContentView(R.layout.activity_import_task);
 
         ButterKnife.bind(this);
+
+        mTaskList.setEmptyView(mEmptyView);
 
         int taskType = (int) SPUtils.get(this, LATEST_TASK_TYPE, 0);
         mEmptyView.setOnClickListener(this);
@@ -135,26 +149,87 @@ public class ImportTaskActivity extends BaseActivity implements View.OnClickList
             if (resultCode == RESULT_OK){
                 Uri uri = data.getData();
                 T.showShort(this, uri.getPath());
-                test(uri.getPath());
+                importTask(uri.getPath());
             }else {
                 T.showShort(this, "请选择一个需要导入的任务文件");
             }
         }
     }
 
-    private void  test(String path){
+    private void importTask(final String path){
+        mProgressDialog = ProgressDialog.show(this, null, "正在导入任务", true, false);
+        new Thread(new Runnable() {
+            @Override
+            public void run() {
+                try {
+                    mNormalTasks.clear();
+                    Row row;
+                    Cell cell;
+                    InputStream is = new FileInputStream(path);
+                    XSSFWorkbook workbook = new XSSFWorkbook(is);
+                    Sheet sheet = workbook.getSheetAt(1);
+                    int rowCount = sheet.getPhysicalNumberOfRows();
+                    for (int r = 1; r < rowCount; r++){
+                        row = sheet.getRow(r);
+                        int cellCount = row.getPhysicalNumberOfCells();
+                        NormalTask normalTask = new NormalTask();
+                        for (int c = 0; c < cellCount; c++){
+                            cell = row.getCell(c);
+                            try {
+                                NormalTask.convertField(normalTask, c, convertCellValue(cell));
+                            } catch (NoSuchMethodException e) {
+                                e.printStackTrace();
+                                normalTask = null;
+                            } catch (InvocationTargetException e) {
+                                e.printStackTrace();
+                                normalTask = null;
+                            } catch (IllegalAccessException e) {
+                                e.printStackTrace();
+                                normalTask = null;
+                            }
+                        }
+                        if (null != normalTask)
+                            mNormalTasks.add(normalTask);
+                    }
+//                    for (NormalTask normalTask : mNormalTasks){
+//                        L.d("####"+normalTask.toString());
+//                    }
+                } catch (IOException e) {
+                    e.printStackTrace();
+                } finally {
+                    mHandler.post(new Runnable() {
+                        @Override
+                        public void run() {
+                            mProgressDialog.dismiss();
+                            TaskAdapter adapter = new TaskAdapter(ImportTaskActivity.this, mNormalTasks);
+                            mTaskList.setAdapter(adapter);
+                        }
+                    });
+                }
+            }
+        }).start();
+
+    }
+
+    private Object convertCellValue(Cell cell){
         try {
-            InputStream is = new FileInputStream(path);
-            XSSFWorkbook workbook = new XSSFWorkbook(is);
-            Sheet sheet = workbook.getSheetAt(1);
-            Row row = sheet.getRow(0);
-            Cell cell = row.getCell(0);
-            String content = cell.getStringCellValue();
-            L.d("@@@@"+content);
-        } catch (FileNotFoundException e) {
-            e.printStackTrace();
-        } catch (IOException e) {
-            e.printStackTrace();
+            switch (cell.getCellType()){
+                case Cell.CELL_TYPE_BLANK:
+                    return "";
+                case Cell.CELL_TYPE_BOOLEAN:
+                    return cell.getBooleanCellValue();
+                case Cell.CELL_TYPE_ERROR:
+                    return "";
+                case Cell.CELL_TYPE_NUMERIC:
+                    return cell.getNumericCellValue();
+                case Cell.CELL_TYPE_STRING:
+                    return cell.getStringCellValue();
+                default:
+                    return "";
+            }
+        }catch (Exception e){
+            L.d(e.getMessage());
+            return "";
         }
     }
 }

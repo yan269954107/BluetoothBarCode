@@ -225,7 +225,7 @@ public class ControlEquipmentActivity extends BaseCommActivity implements View.O
     private void Send(String sData) {
         if (!sData.equals("")) {
             String sSend = sData;
-            if (sSend.equals(QUIT) && mProgressDialog != null && mProgressDialog.isShowing()){
+            if (sSend.equals(LOG_START) && mProgressDialog != null && mProgressDialog.isShowing()){
                 mProgressDialog.dismiss();
             }
             int iRet = 0;
@@ -278,7 +278,7 @@ public class ControlEquipmentActivity extends BaseCommActivity implements View.O
 //                Send(IGNITE_FID);
                 sendCombinationOrders(
                         new String[]{SCREEN, PUSH_1, QUIT, LOG_START},
-                        new int[]{0, 200, 2200, 2400});
+                        new int[]{0, 1000, 6000, 7000});
                 break;
             case R.id.btn_pump_on:
                 Send(PUMP_ON);
