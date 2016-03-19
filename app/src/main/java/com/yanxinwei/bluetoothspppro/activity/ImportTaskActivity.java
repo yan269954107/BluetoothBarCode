@@ -7,10 +7,8 @@ import android.os.Bundle;
 import android.os.Handler;
 import android.view.Menu;
 import android.view.MenuItem;
-import android.view.View;
 import android.widget.ListView;
 import android.widget.TextView;
-import android.widget.Toast;
 
 import com.yanxinwei.bluetoothspppro.R;
 import com.yanxinwei.bluetoothspppro.adapter.TaskAdapter;
@@ -34,7 +32,7 @@ import java.util.ArrayList;
 import butterknife.Bind;
 import butterknife.ButterKnife;
 
-public class ImportTaskActivity extends BaseActivity implements View.OnClickListener{
+public class ImportTaskActivity extends BaseActivity {
 
     private static final String TASK_PATH = "taskPath";
     private static final String TASK_REPEAT_PATH = "taskRepeatPath";
@@ -55,6 +53,8 @@ public class ImportTaskActivity extends BaseActivity implements View.OnClickList
 
     private TaskAdapter mAdapter;
 
+    private int taskType = 0;
+
     @Bind(R.id.list_task)
     ListView mTaskList;
 
@@ -70,12 +70,11 @@ public class ImportTaskActivity extends BaseActivity implements View.OnClickList
 
         mTaskList.setEmptyView(mEmptyView);
 
-        int taskType = (int) SPUtils.get(this, LATEST_TASK_TYPE, 0);
-        mEmptyView.setOnClickListener(this);
+        taskType = (int) SPUtils.get(this, LATEST_TASK_TYPE, 0);
         //未加载到任务,显示空界面
         if (taskType == 0){
-            mTaskList.setVisibility(View.GONE);
-            mEmptyView.setVisibility(View.VISIBLE);
+//            mTaskList.setVisibility(View.GONE);
+//            mEmptyView.setVisibility(View.VISIBLE);
         } else {
             if (taskType == 1){
                 taskPath = (String) SPUtils.get(this, TASK_PATH, "");
@@ -88,7 +87,9 @@ public class ImportTaskActivity extends BaseActivity implements View.OnClickList
 
     private void loadTask() {
 
-
+        if (!taskPath.equals("") && taskType != 0){
+            importTask(taskPath);
+        }
 
     }
 
@@ -107,22 +108,15 @@ public class ImportTaskActivity extends BaseActivity implements View.OnClickList
     public boolean onOptionsItemSelected(MenuItem item) {
         switch (item.getItemId()){
             case MENU_ID_IMPORT_TASK:
+                taskType = 1;
                 showFileSelected();
                 return true;
             case MENU_ID_IMPORT_REPEAT_TASK:
+                taskType = 2;
                 showFileSelected();
                 return  true;
             default:
                 return super.onOptionsItemSelected(item);
-        }
-    }
-
-    @Override
-    public void onClick(View v) {
-        switch (v.getId()){
-            case R.id.empty_view:
-                showFileSelected();
-                break;
         }
     }
 
@@ -135,9 +129,7 @@ public class ImportTaskActivity extends BaseActivity implements View.OnClickList
             startActivityForResult(Intent.createChooser(intent, "请选择一个要导入的excel任务"),
                     FILE_SELECT_CODE);
         } catch (android.content.ActivityNotFoundException ex) {
-            // Potentially direct the user to the Market with a Dialog
-            Toast.makeText(this, "请安装文件管理器", Toast.LENGTH_SHORT)
-                    .show();
+            T.showShort(this, "请安装文件管理器");
         }
 
     }
@@ -191,9 +183,7 @@ public class ImportTaskActivity extends BaseActivity implements View.OnClickList
                         if (null != normalTask)
                             mNormalTasks.add(normalTask);
                     }
-//                    for (NormalTask normalTask : mNormalTasks){
-//                        L.d("####"+normalTask.toString());
-//                    }
+
                 } catch (IOException e) {
                     e.printStackTrace();
                 } finally {
@@ -203,6 +193,14 @@ public class ImportTaskActivity extends BaseActivity implements View.OnClickList
                             mProgressDialog.dismiss();
                             TaskAdapter adapter = new TaskAdapter(ImportTaskActivity.this, mNormalTasks);
                             mTaskList.setAdapter(adapter);
+                            SPUtils.put(ImportTaskActivity.this, LATEST_TASK_TYPE, taskType);
+                            String key;
+                            if (taskType == 1){
+                                key = TASK_PATH;
+                            }else {
+                                key = TASK_REPEAT_PATH;
+                            }
+                            SPUtils.put(ImportTaskActivity.this, key, path);
                         }
                     });
                 }
