@@ -7,6 +7,20 @@
 		<item name="colorPrimary">@color/colorPrimary</item>
 		<item name="colorPrimaryDark">@color/colorPrimaryDark</item>
 		<item name="colorAccent">@color/colorAccent</item>
+		<item name="android:textColorPrimaryInverse">@color/white</item>
+		<item name="android:textColorSecondary">@color/light_grey</item>
+		<item name="android:windowBackground">@color/light_grey</item>
+	</style>
+
+	<style name="AppNoActionTheme" parent="Theme.AppCompat.Light.NoActionBar">
+		<!-- All customizations that are NOT specific to a particular API-level can go here. -->
+		<!-- Customize your theme here. -->
+		<item name="colorPrimary">@color/colorPrimary</item>
+		<item name="colorPrimaryDark">@color/colorPrimaryDark</item>
+		<item name="colorAccent">@color/colorAccent</item>
+		<item name="android:textColorPrimaryInverse">@color/white</item>
+		<item name="android:textColorSecondary">@color/light_grey</item>
+		<item name="android:windowBackground">@color/light_grey</item>
 	</style>
 
 	<style name="my_btn_normal_style">

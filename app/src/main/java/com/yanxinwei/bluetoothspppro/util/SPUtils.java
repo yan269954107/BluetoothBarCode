@@ -15,6 +15,9 @@ public class SPUtils {
      */
     public static final String FILE_NAME = "share_data";
 
+    public static final String SP_DETECT_DEVICE = "detect_device";
+    public static final String SP_DETECT_PERSONAL = "detect_personal";
+
     /**
      * 保存数据的方法，我们需要拿到保存数据的具体类型，然后根据类型调用不同的保存方法
      *
