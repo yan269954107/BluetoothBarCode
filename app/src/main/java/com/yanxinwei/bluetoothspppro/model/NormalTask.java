@@ -2,6 +2,7 @@ package com.yanxinwei.bluetoothspppro.model;
 
 import android.annotation.SuppressLint;
 
+import java.io.Serializable;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.util.HashMap;
@@ -10,7 +11,7 @@ import java.util.HashMap;
  *
  * Created by yanxinwei on 16/3/16.
  */
-public class NormalTask {
+public class NormalTask implements Serializable{
 
     private String detectedEquipment;
     private String area;

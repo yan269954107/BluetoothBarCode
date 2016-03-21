@@ -88,7 +88,7 @@
             <TextView
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:text="导入任务"
+                android:text="检测任务"
                 android:gravity="center"
                 android:textSize="26sp"
                 android:id="@+id/textView"
@@ -105,6 +105,7 @@
                 android:src="@drawable/main_testing_task"
                 android:scaleType="fitXY"
                 android:layout_margin="15dp"
+                android:visibility="gone"
                 android:background="@color/translucent_bg"
                 android:layout_below="@+id/textView2"
                 android:layout_alignLeft="@+id/textView2"
@@ -119,6 +120,7 @@
                 android:gravity="center"
                 android:textSize="26sp"
                 android:id="@+id/textView3"
+                android:visibility="gone"
                 android:layout_below="@+id/btn_testing"
                 android:layout_alignLeft="@+id/textView2"
                 android:layout_alignStart="@+id/textView2"
@@ -131,14 +133,13 @@
                 android:id="@+id/btn_control_equipment"
                 android:src="@drawable/main_control_equipment"
                 android:scaleType="fitXY"
-                android:layout_margin="10dp"
                 android:background="@color/translucent_bg"
-                android:layout_alignTop="@+id/btn_testing"
-                android:layout_above="@+id/textView3"
-                android:layout_alignRight="@+id/textView"
-                android:layout_alignEnd="@+id/textView"
-                android:layout_alignLeft="@+id/textView"
-                android:layout_alignStart="@+id/textView"/>
+                android:layout_below="@+id/textView2"
+                android:layout_alignLeft="@+id/textView2"
+                android:layout_alignStart="@+id/textView2"
+                android:layout_alignRight="@+id/textView2"
+                android:layout_alignEnd="@+id/textView2"
+                android:padding="10dp"/>
 
             <TextView
                 android:layout_width="wrap_content"
@@ -148,10 +149,10 @@
                 android:textSize="26sp"
                 android:id="@+id/textView4"
                 android:layout_below="@+id/btn_control_equipment"
-                android:layout_alignLeft="@+id/textView"
-                android:layout_alignStart="@+id/textView"
-                android:layout_alignRight="@+id/textView"
-                android:layout_alignEnd="@+id/textView"/>
+                android:layout_alignLeft="@+id/btn_control_equipment"
+                android:layout_alignStart="@+id/btn_control_equipment"
+                android:layout_alignRight="@+id/btn_control_equipment"
+                android:layout_alignEnd="@+id/btn_control_equipment"/>
 
         </RelativeLayout>
 

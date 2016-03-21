@@ -7,6 +7,8 @@ import android.os.Bundle;
 import android.os.Handler;
 import android.view.Menu;
 import android.view.MenuItem;
+import android.view.View;
+import android.widget.AdapterView;
 import android.widget.ListView;
 import android.widget.TextView;
 
@@ -14,7 +16,6 @@ import com.yanxinwei.bluetoothspppro.R;
 import com.yanxinwei.bluetoothspppro.adapter.TaskAdapter;
 import com.yanxinwei.bluetoothspppro.core.BaseActivity;
 import com.yanxinwei.bluetoothspppro.model.NormalTask;
-import com.yanxinwei.bluetoothspppro.util.L;
 import com.yanxinwei.bluetoothspppro.util.SPUtils;
 import com.yanxinwei.bluetoothspppro.util.T;
 
@@ -69,6 +70,13 @@ public class ImportTaskActivity extends BaseActivity {
         ButterKnife.bind(this);
 
         mTaskList.setEmptyView(mEmptyView);
+        mTaskList.setOnItemClickListener(new AdapterView.OnItemClickListener() {
+            @Override
+            public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
+                Intent intent = NormalTaskActivity.createIntent(ImportTaskActivity.this, mAdapter.getItem(position));
+                startActivity(intent);
+            }
+        });
 
         taskType = (int) SPUtils.get(this, LATEST_TASK_TYPE, 0);
         //未加载到任务,显示空界面
@@ -78,8 +86,10 @@ public class ImportTaskActivity extends BaseActivity {
         } else {
             if (taskType == 1){
                 taskPath = (String) SPUtils.get(this, TASK_PATH, "");
+                getSupportActionBar().setTitle("检测任务");
             } else {
                 taskPath = (String) SPUtils.get(this, TASK_REPEAT_PATH, "");
+                getSupportActionBar().setTitle("复检任务");
             }
             loadTask();
         }
@@ -191,14 +201,16 @@ public class ImportTaskActivity extends BaseActivity {
                         @Override
                         public void run() {
                             mProgressDialog.dismiss();
-                            TaskAdapter adapter = new TaskAdapter(ImportTaskActivity.this, mNormalTasks);
-                            mTaskList.setAdapter(adapter);
+                            mAdapter = new TaskAdapter(ImportTaskActivity.this, mNormalTasks);
+                            mTaskList.setAdapter(mAdapter);
                             SPUtils.put(ImportTaskActivity.this, LATEST_TASK_TYPE, taskType);
                             String key;
                             if (taskType == 1){
                                 key = TASK_PATH;
+                                getSupportActionBar().setTitle("检测任务");
                             }else {
                                 key = TASK_REPEAT_PATH;
+                                getSupportActionBar().setTitle("复检任务");
                             }
                             SPUtils.put(ImportTaskActivity.this, key, path);
                         }
@@ -226,7 +238,7 @@ public class ImportTaskActivity extends BaseActivity {
                     return "";
             }
         }catch (Exception e){
-            L.d(e.getMessage());
+            e.printStackTrace();
             return "";
         }
     }

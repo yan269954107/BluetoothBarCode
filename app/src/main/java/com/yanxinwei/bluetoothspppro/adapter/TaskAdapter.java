@@ -34,7 +34,7 @@ public class TaskAdapter extends BaseAdapter {
     }
 
     @Override
-    public Object getItem(int position) {
+    public NormalTask getItem(int position) {
         return mTasks.get(position);
     }
 
