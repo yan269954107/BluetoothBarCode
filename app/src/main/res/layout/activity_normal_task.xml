@@ -261,7 +261,8 @@
                     android:layout_width="0dp"
                     android:layout_height="wrap_content"
                     android:id="@+id/edt_detect_date"
-                    android:layout_weight="3"/>
+                    android:layout_weight="3"
+                    android:focusable="false"/>
             </LinearLayout>
 
             <LinearLayout
@@ -282,7 +283,8 @@
                     android:layout_width="0dp"
                     android:layout_height="wrap_content"
                     android:id="@+id/edt_detect_device"
-                    android:layout_weight="3"/>
+                    android:layout_weight="3"
+                    android:focusable="false"/>
             </LinearLayout>
 
             <LinearLayout

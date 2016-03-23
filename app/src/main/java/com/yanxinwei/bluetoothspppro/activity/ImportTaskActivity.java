@@ -35,10 +35,10 @@ import butterknife.ButterKnife;
 
 public class ImportTaskActivity extends BaseActivity {
 
-    private static final String TASK_PATH = "taskPath";
-    private static final String TASK_REPEAT_PATH = "taskRepeatPath";
+    public static final String TASK_PATH = "taskPath";
+    public static final String TASK_REPEAT_PATH = "taskRepeatPath";
     //0:未初始化  1:普通任务  2:复检任务
-    private static final String LATEST_TASK_TYPE = "latestTaskType";
+    public static final String LATEST_TASK_TYPE = "latestTaskType";
 
     private static final int MENU_ID_IMPORT_TASK = 0x01;
     private static final int MENU_ID_IMPORT_REPEAT_TASK = 0x02;
@@ -73,7 +73,8 @@ public class ImportTaskActivity extends BaseActivity {
         mTaskList.setOnItemClickListener(new AdapterView.OnItemClickListener() {
             @Override
             public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
-                Intent intent = NormalTaskActivity.createIntent(ImportTaskActivity.this, mAdapter.getItem(position));
+                Intent intent = NormalTaskActivity.createIntent(ImportTaskActivity.this,
+                        mAdapter.getItem(position), position);
                 startActivity(intent);
             }
         });

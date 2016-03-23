@@ -35,7 +35,7 @@ public class BaseCommActivity extends BaseActivity
 	/**常量:动态存储存储对象的Key; subkey:input_mode/output_mode*/
 	protected final static String KEY_IO_MODE = "key_io_mode";
 	/**常量:结束符字符集*/
-	protected final static String[] msEND_FLGS = {"\r\n", "\n"};
+	public final static String[] msEND_FLGS = {"\r\n", "\n"};
 	
 	/**常量:历史发送命令字符串分隔符(将命令历史保存到字符串中，使用这个分隔符进行数组切割)*/
 	protected static final String HISTORY_SPLIT = "&#&";
@@ -65,7 +65,7 @@ public class BaseCommActivity extends BaseActivity
 	protected CKVStorage mDS = null;
 	
 	/**未设限制的AsyncTask线程池(重要)*/
-	protected static ExecutorService FULL_TASK_EXECUTOR;
+	public static ExecutorService FULL_TASK_EXECUTOR;
 	static{
 		FULL_TASK_EXECUTOR = (ExecutorService) Executors.newCachedThreadPool();
 	};
