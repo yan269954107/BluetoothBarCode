@@ -357,7 +357,7 @@ public class NormalTaskActivity extends AppCompatActivity implements View.OnClic
         isDetecting = false;
         mDialogDetect.dismiss();
 
-        String date = new SimpleDateFormat("yyyy/mm/dd HH:mm:ss").format(new Date());
+        String date = new SimpleDateFormat("yyyy/MM/dd HH:mm:ss").format(new Date());
         mEdtDetectDate.setText(date);
         String detectDevice = (String) SPUtils.get(this, SPUtils.SP_DETECT_DEVICE, "未设置");
         mEdtDetectDevice.setText(detectDevice);
