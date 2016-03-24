@@ -1,6 +1,7 @@
 package com.yanxinwei.bluetoothspppro.adapter;
 
 import android.content.Context;
+import android.text.TextUtils;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -61,6 +62,11 @@ public class TaskAdapter extends BaseAdapter {
         holder.txtAddress.setText(normalTask.getAddress());
         holder.txtUnitType.setText(normalTask.getUnitType());
         holder.txtLabelNumber.setText(normalTask.getLabelNumber());
+        if (TextUtils.isEmpty(normalTask.getDetectDate())){
+            holder.imgState.setImageResource(R.drawable.ic_gray_tick_circle);
+        }else {
+            holder.imgState.setImageResource(R.drawable.ic_green_tick_circle);
+        }
         return convertView;
     }
 

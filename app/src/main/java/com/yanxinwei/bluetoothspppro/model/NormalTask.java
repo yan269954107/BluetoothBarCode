@@ -199,6 +199,8 @@ public class NormalTask implements Serializable{
         Class cls = NormalTask.class;
         MethodParams methodParams = convertMap.get(cellIndex);
         Method method = cls.getMethod(methodParams.getMethodName(),methodParams.getParamsType());
+//        L.d("@@@@cellIndex:"+cellIndex+"   methodName:"+methodParams.getMethodName()
+//                +"    paramsType:"+methodParams.getParamsType()+"    args:"+args);
         method.invoke(normalTask, args);
     }
 

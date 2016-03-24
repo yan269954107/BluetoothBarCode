@@ -5,6 +5,7 @@ import android.content.Intent;
 import android.net.Uri;
 import android.os.Bundle;
 import android.os.Handler;
+import android.text.TextUtils;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
@@ -14,6 +15,7 @@ import android.widget.TextView;
 
 import com.yanxinwei.bluetoothspppro.R;
 import com.yanxinwei.bluetoothspppro.adapter.TaskAdapter;
+import com.yanxinwei.bluetoothspppro.core.AppConstants;
 import com.yanxinwei.bluetoothspppro.core.BaseActivity;
 import com.yanxinwei.bluetoothspppro.model.NormalTask;
 import com.yanxinwei.bluetoothspppro.util.SPUtils;
@@ -44,6 +46,7 @@ public class ImportTaskActivity extends BaseActivity {
     private static final int MENU_ID_IMPORT_REPEAT_TASK = 0x02;
 
     private static final int FILE_SELECT_CODE = 1001;
+    private static final int REQUEST_CODE = 1002;
 
     private String taskPath;
 
@@ -75,7 +78,7 @@ public class ImportTaskActivity extends BaseActivity {
             public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
                 Intent intent = NormalTaskActivity.createIntent(ImportTaskActivity.this,
                         mAdapter.getItem(position), position);
-                startActivity(intent);
+                startActivityForResult(intent, REQUEST_CODE);
             }
         });
 
@@ -123,8 +126,8 @@ public class ImportTaskActivity extends BaseActivity {
                 showFileSelected();
                 return true;
             case MENU_ID_IMPORT_REPEAT_TASK:
-                taskType = 2;
-                showFileSelected();
+//                taskType = 2;
+//                showFileSelected();
                 return  true;
             default:
                 return super.onOptionsItemSelected(item);
@@ -156,6 +159,18 @@ public class ImportTaskActivity extends BaseActivity {
             }else {
                 T.showShort(this, "请选择一个需要导入的任务文件");
             }
+        }else if (requestCode == REQUEST_CODE){
+            if (resultCode == RESULT_OK){
+                int row = data.getIntExtra(NormalTaskActivity.SAVED_POSITION, -1);
+                if (row != -1){
+                    String detectDate = data.getStringExtra(NormalTaskActivity.DETECTED_DATE);
+                    if (!TextUtils.isEmpty(detectDate)){
+                        NormalTask task = mNormalTasks.get(row);
+                        task.setDetectDate(detectDate);
+                        mAdapter.notifyDataSetChanged();
+                    }
+                }
+            }
         }
     }
 
@@ -174,9 +189,9 @@ public class ImportTaskActivity extends BaseActivity {
                     int rowCount = sheet.getPhysicalNumberOfRows();
                     for (int r = 1; r < rowCount; r++){
                         row = sheet.getRow(r);
-                        int cellCount = row.getPhysicalNumberOfCells();
+//                        int cellCount = row.getPhysicalNumberOfCells();
                         NormalTask normalTask = new NormalTask();
-                        for (int c = 0; c < cellCount; c++){
+                        for (int c = 0; c < AppConstants.CELL_NUMBER; c++){
                             cell = row.getCell(c);
                             try {
                                 NormalTask.convertField(normalTask, c, convertCellValue(cell));
@@ -224,19 +239,23 @@ public class ImportTaskActivity extends BaseActivity {
 
     private Object convertCellValue(Cell cell){
         try {
-            switch (cell.getCellType()){
-                case Cell.CELL_TYPE_BLANK:
-                    return "";
-                case Cell.CELL_TYPE_BOOLEAN:
-                    return cell.getBooleanCellValue();
-                case Cell.CELL_TYPE_ERROR:
-                    return "";
-                case Cell.CELL_TYPE_NUMERIC:
-                    return cell.getNumericCellValue();
-                case Cell.CELL_TYPE_STRING:
-                    return cell.getStringCellValue();
-                default:
-                    return "";
+            if (null == cell){
+                return "";
+            }else {
+                switch (cell.getCellType()){
+                    case Cell.CELL_TYPE_BLANK:
+                        return "";
+                    case Cell.CELL_TYPE_BOOLEAN:
+                        return cell.getBooleanCellValue();
+                    case Cell.CELL_TYPE_ERROR:
+                        return "";
+                    case Cell.CELL_TYPE_NUMERIC:
+                        return cell.getNumericCellValue();
+                    case Cell.CELL_TYPE_STRING:
+                        return cell.getStringCellValue();
+                    default:
+                        return "";
+                }
             }
         }catch (Exception e){
             e.printStackTrace();

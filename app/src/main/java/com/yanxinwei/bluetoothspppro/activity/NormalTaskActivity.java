@@ -4,14 +4,17 @@ import android.animation.Animator;
 import android.animation.ObjectAnimator;
 import android.app.Activity;
 import android.app.Dialog;
+import android.app.ProgressDialog;
 import android.content.Context;
 import android.content.Intent;
 import android.os.AsyncTask;
 import android.os.Bundle;
+import android.os.Handler;
 import android.os.SystemClock;
 import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
+import android.view.KeyEvent;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.animation.LinearInterpolator;
@@ -52,6 +55,10 @@ public class NormalTaskActivity extends AppCompatActivity implements View.OnClic
 
     public static final String NORMAL_TASK = "normal_task";
     public static final String TASK_ON_EXCEL_ROW = "task_on_excel_row";
+
+    public static final String IS_SAVED = "isSaved";
+    public static final String SAVED_POSITION = "savedPosition";
+    public static final String DETECTED_DATE = "detectedDate";
 
     @Bind(R.id.edt_detected_equipment)
     EditText mEdtDetectedEquipment;
@@ -119,11 +126,16 @@ public class NormalTaskActivity extends AppCompatActivity implements View.OnClic
 
     private int mDetectMinTime;
 
-    private boolean isDetected = false;
+    //是否正在检测数据
+    private boolean isDetecting = false;
+    private boolean isSaved = false;
 
     private int mExcelRow = -1;
 
     private boolean isCompleted = false;
+
+    private ProgressDialog mProgressDialog;
+    private Handler mHandler = new Handler();
 
     //蓝牙接收数据相关参数
     private boolean mbThreadStop = false;
@@ -181,6 +193,22 @@ public class NormalTaskActivity extends AppCompatActivity implements View.OnClic
             mBSC.killReceiveData_StopFlg();
     }
 
+    @Override
+    public boolean onKeyDown(int keyCode, KeyEvent event) {
+        if (keyCode == KeyEvent.KEYCODE_BACK){
+            Intent intent = new Intent();
+            intent.putExtra(IS_SAVED, isSaved);
+            if (isSaved){
+                intent.putExtra(SAVED_POSITION, mExcelRow - 1);
+                intent.putExtra(DETECTED_DATE, mEdtDetectDate.getText().toString());
+                setResult(RESULT_OK, intent);
+            } else {
+                setResult(RESULT_CANCELED, intent);
+            }
+        }
+        return super.onKeyDown(keyCode, event);
+    }
+
     private void bindValue() {
 
         task = (NormalTask) getIntent().getSerializableExtra(NORMAL_TASK);
@@ -227,59 +255,106 @@ public class NormalTaskActivity extends AppCompatActivity implements View.OnClic
     }
 
     private void saveTask(){
+
         if (!isCompleted){
             T.showShort(this, "请检测后再保存");
             return;
         }
-        int taskType = (int) SPUtils.get(this, ImportTaskActivity.LATEST_TASK_TYPE, 0);
-        if (taskType == 1){
-            String path = (String) SPUtils.get(this, ImportTaskActivity.TASK_PATH, "");
-            if (!path.equals("")){
-                try {
-                    InputStream is = new FileInputStream(path);
-                    XSSFWorkbook workbook = new XSSFWorkbook(is);
-                    Sheet sheet = workbook.getSheetAt(1);
-                    Row row = sheet.getRow(mExcelRow);
-                    Cell dateCell = row.getCell(AppConstants.CELL_DETECT_DATE);
-                    dateCell.setCellValue(mEdtDetectDate.getText().toString());
 
-//                    Cell deviceCell = row.getCell(AppConstants.CELL_DETECT_DEVICE);
-//                    deviceCell.setCellValue(mEdtDetectDevice.getText().toString());
+        mProgressDialog = ProgressDialog.show(this, null, "正在保存数据", true, false);
 
-                    Cell valueCell = row.getCell(AppConstants.CELL_DETECT_VALUE);
-                    valueCell.setCellValue(mEdtDetectValue.getText().toString());
+        new Thread(new Runnable() {
+            @Override
+            public void run() {
+                int taskType = (int) SPUtils.get(NormalTaskActivity.this, ImportTaskActivity.LATEST_TASK_TYPE, 0);
+                if (taskType == 1){
+                    String path = (String) SPUtils.get(NormalTaskActivity.this, ImportTaskActivity.TASK_PATH, "");
+                    if (!path.equals("")){
+                        try {
+                            InputStream is = new FileInputStream(path);
+                            XSSFWorkbook workbook = new XSSFWorkbook(is);
+                            Sheet sheet = workbook.getSheetAt(1);
+                            Row row = sheet.getRow(mExcelRow);
 
-//                    Cell isLeakageCell = row.getCell(AppConstants.CELL_IS_LEAKAGE);
-//                    isLeakageCell.setCellValue(mEdtIsLeakage.getText().toString());
+                            setCellValue(row, AppConstants.CELL_DETECT_DATE, mEdtDetectDate.getText().toString());
 
-//                    Cell leakagePositionCell = row.getCell(AppConstants.CELL_LEAKAGE_POSITION);
-//                    leakagePositionCell.setCellValue(mEdtLeakagePosition.getText().toString());
+                            setCellValue(row, AppConstants.CELL_DETECT_DEVICE, mEdtDetectDevice.getText().toString());
 
-//                    Cell remarksCell = row.getCell(AppConstants.CELL_REMARKS);
-//                    remarksCell.setCellValue(mEdtRemarks.getText().toString());
+                            Cell cellDetectValue = getCell(row, AppConstants.CELL_DETECT_VALUE);
+                            cellDetectValue.setCellValue(Double.parseDouble(mEdtDetectValue.getText().toString()));
 
-                    FileOutputStream os = new FileOutputStream(path);
-                    workbook.write(os);
+                            int isLeakage = (int) task.getIsLeakage();
+                            Cell cellIsLeakage = getCell(row, AppConstants.CELL_IS_LEAKAGE);
+                            cellIsLeakage.setCellValue(task.getIsLeakage());
 
-                    is.close();
-                    os.close();
+                            if (isLeakage == 1){
+                                setCellValue(row, AppConstants.CELL_LEAKAGE_POSITION, mEdtLeakagePosition.getText().toString());
+                            }
 
-                    T.showShort(this, "保存成功");
+                            setCellValue(row, AppConstants.CELL_REMARKS, mEdtRemarks.getText().toString());
 
-                } catch (IOException e) {
-                    e.printStackTrace();
+                            FileOutputStream os = new FileOutputStream(path);
+                            workbook.write(os);
+
+                            is.close();
+                            os.close();
+
+                            showToast("保存成功");
+                            isSaved = true;
+
+                        } catch (IOException e) {
+                            e.printStackTrace();
+                        } finally {
+                            dismissProgress();
+                        }
+
+                    }else {
+                        showToast("请退出后重新导入任务");
+                        dismissProgress();
+                    }
+                }else {
+                    showToast("请退出后重新导入任务");
+                    dismissProgress();
                 }
-
-            }else {
-                T.showShort(this, "请退出后重新导入任务");
             }
-        }else {
-            T.showShort(this, "请退出后重新导入任务");
+        }).start();
+
+
+    }
+
+    private void showToast(final String content){
+        mHandler.post(new Runnable() {
+            @Override
+            public void run() {
+                T.showShort(NormalTaskActivity.this, content);
+            }
+        });
+    }
+
+    private void dismissProgress(){
+        mHandler.post(new Runnable() {
+            @Override
+            public void run() {
+                mProgressDialog.dismiss();
+            }
+        });
+    }
+
+    private void setCellValue(Row row, int cellNumber, String value) {
+        Cell cell = getCell(row, cellNumber);
+        cell.setCellValue(value);
+    }
+
+    private Cell getCell(Row row, int cellNumber) {
+        Cell cell = row.getCell(cellNumber);
+        if (null == cell){
+            cell = row.createCell(cellNumber);
         }
+        return cell;
     }
 
     private void completeDetect(){
-        isDetected = false;
+        isDetecting = false;
         mDialogDetect.dismiss();
 
         String date = new SimpleDateFormat("yyyy/mm/dd HH:mm:ss").format(new Date());
@@ -289,10 +364,10 @@ public class NormalTaskActivity extends AppCompatActivity implements View.OnClic
         mEdtDetectValue.setText(mDetectMaxValue + "");
         if (mDetectMaxValue >= task.getLeakageThreshold()){
             mEdtIsLeakage.setText("是");
-            task.setIsLeakage(1.0);
+            task.setIsLeakage(1);
         }else {
             mEdtIsLeakage.setText("否");
-            task.setIsLeakage(0.0);
+            task.setIsLeakage(0);
         }
 
         isCompleted = true;
@@ -324,7 +399,7 @@ public class NormalTaskActivity extends AppCompatActivity implements View.OnClic
 
     private void showDetectDialog(){
 
-        isDetected = true;
+        isDetecting = true;
         if (mDialogDetect == null){
             final AlertDialog.Builder dialogBuilder = new AlertDialog.Builder(this);
             mDialogViewDetect = mInflater.inflate(R.layout.dialog_detect_data, null);
@@ -406,7 +481,7 @@ public class NormalTaskActivity extends AppCompatActivity implements View.OnClic
         public void onProgressUpdate(String... progress) {
 //            mtvRecView.append(progress[0]); //显示区中追加数据
             String data = progress[0];
-            if (isDetected){
+            if (isDetecting){
                 int index = data.indexOf("OK");
                 if (index!=-1){
                     data = data.substring(0,index);
@@ -415,10 +490,11 @@ public class NormalTaskActivity extends AppCompatActivity implements View.OnClic
                     Double value = Double.valueOf(data);
                     mTxtDetectValue.setText(value + "");
                     if (value > mDetectMaxValue){
+                        mDetectMaxValue = value;
                         mTxtDetectMaxValue.setText(mDetectMaxValue + "");
                     }
                 }catch (Exception e){
-
+                    e.printStackTrace();
                 }
             }
         }
