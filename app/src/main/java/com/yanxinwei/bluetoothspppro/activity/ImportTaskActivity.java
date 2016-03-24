@@ -18,6 +18,7 @@ import com.yanxinwei.bluetoothspppro.adapter.TaskAdapter;
 import com.yanxinwei.bluetoothspppro.core.AppConstants;
 import com.yanxinwei.bluetoothspppro.core.BaseActivity;
 import com.yanxinwei.bluetoothspppro.model.NormalTask;
+import com.yanxinwei.bluetoothspppro.util.SDLog;
 import com.yanxinwei.bluetoothspppro.util.SPUtils;
 import com.yanxinwei.bluetoothspppro.util.T;
 
@@ -72,6 +73,8 @@ public class ImportTaskActivity extends BaseActivity {
 
         ButterKnife.bind(this);
 
+//        SDLog.open();
+
         mTaskList.setEmptyView(mEmptyView);
         mTaskList.setOnItemClickListener(new AdapterView.OnItemClickListener() {
             @Override
@@ -97,6 +100,13 @@ public class ImportTaskActivity extends BaseActivity {
             }
             loadTask();
         }
+
+    }
+
+    @Override
+    protected void onDestroy() {
+//        SDLog.close();
+        super.onDestroy();
     }
 
     private void loadTask() {
@@ -155,6 +165,7 @@ public class ImportTaskActivity extends BaseActivity {
             if (resultCode == RESULT_OK){
                 Uri uri = data.getData();
                 T.showShort(this, uri.getPath());
+//                SDLog.appendLog("path"+uri.getPath());
                 importTask(uri.getPath());
             }else {
                 T.showShort(this, "请选择一个需要导入的任务文件");
@@ -175,6 +186,7 @@ public class ImportTaskActivity extends BaseActivity {
     }
 
     private void importTask(final String path){
+//        SDLog.appendLog("importTask:start import");
         mProgressDialog = ProgressDialog.show(this, null, "正在导入任务", true, false);
         new Thread(new Runnable() {
             @Override
@@ -187,6 +199,7 @@ public class ImportTaskActivity extends BaseActivity {
                     XSSFWorkbook workbook = new XSSFWorkbook(is);
                     Sheet sheet = workbook.getSheetAt(1);
                     int rowCount = sheet.getPhysicalNumberOfRows();
+//                    SDLog.appendLog("rowCount:"+rowCount);
                     for (int r = 1; r < rowCount; r++){
                         row = sheet.getRow(r);
 //                        int cellCount = row.getPhysicalNumberOfCells();
@@ -211,7 +224,8 @@ public class ImportTaskActivity extends BaseActivity {
                     }
 
                 } catch (IOException e) {
-                    e.printStackTrace();
+//                    e.printStackTrace();
+//                    SDLog.appendLog("219 IOException:"+e.getMessage());
                 } finally {
                     mHandler.post(new Runnable() {
                         @Override
