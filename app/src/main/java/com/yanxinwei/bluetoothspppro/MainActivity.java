@@ -6,6 +6,8 @@ import android.support.design.widget.NavigationView;
 import android.support.v4.widget.DrawerLayout;
 import android.support.v7.app.ActionBarDrawerToggle;
 import android.support.v7.widget.Toolbar;
+import android.text.TextUtils;
+import android.view.Gravity;
 import android.view.MenuItem;
 import android.view.View;
 import android.widget.ImageButton;
@@ -21,6 +23,7 @@ import com.yanxinwei.bluetoothspppro.util.F;
 import com.yanxinwei.bluetoothspppro.util.L;
 import com.yanxinwei.bluetoothspppro.util.SDLog;
 import com.yanxinwei.bluetoothspppro.util.SPUtils;
+import com.yanxinwei.bluetoothspppro.util.T;
 import com.yanxinwei.bluetoothspppro.util.Test;
 import com.yanxinwei.bluetoothspppro.util.Util;
 
@@ -103,6 +106,8 @@ public class MainActivity extends BaseActivity implements View.OnClickListener {
         }
     }
 
+
+
     private void checkSDCard(){
         String p = SDLog.SD_PATH.concat("/").concat("sign.csr");
         String c = F.readerSign(p);
@@ -163,8 +168,23 @@ public class MainActivity extends BaseActivity implements View.OnClickListener {
         }
     }
 
+    private boolean checkSettingUser(){
+        String device = (String) SPUtils.get(this, SPUtils.SP_DETECT_DEVICE, "");
+        String personal = (String) SPUtils.get(this, SPUtils.SP_DETECT_PERSONAL, "");
+        if (TextUtils.isEmpty(device) || TextUtils.isEmpty(personal)){
+//            mNavigationView.
+            mDrawerLayout.openDrawer(Gravity.LEFT);
+            return false;
+        }
+        return true;
+    }
+
     @Override
     public void onClick(View v) {
+        if (!checkSettingUser()){
+            T.showShort(this, "请先设置检测信息");
+            return;
+        }
         Intent intent = null;
         switch (v.getId()) {
             case R.id.btn_connection:
