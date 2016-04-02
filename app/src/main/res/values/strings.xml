@@ -105,7 +105,7 @@
     <string name="control_ignite_fid">点燃FID</string>
     <string name="control_pump_on">启动泵</string>
     <string name="control_pump_off">停止泵</string>
-    <string name="control_reboot">重启(待确认)</string>
+    <string name="control_reboot">退出</string>
 
     <string name="menu_import_task">导入检测任务</string>
     <string name="menu_import_repeat_task">导入复检任务</string>

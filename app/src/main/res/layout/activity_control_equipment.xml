@@ -29,8 +29,8 @@
                 android:layout_height="wrap_content"
                 style="@style/my_btn_normal_style"/>
             <Button
-                android:id="@+id/btn_pump_on"
-                android:text="@string/control_pump_on"
+                android:id="@+id/btn_reboot"
+                android:text="@string/control_reboot"
                 android:layout_weight="1"
                 android:layout_width="0dp"
                 android:layout_height="wrap_content"
@@ -42,15 +42,15 @@
             android:layout_width="fill_parent"
             android:layout_height="wrap_content">
             <Button
-                android:id="@+id/btn_pump_off"
-                android:text="@string/control_pump_off"
+                android:id="@+id/btn_pump_on"
+                android:text="@string/control_pump_on"
                 android:layout_weight="1"
                 android:layout_width="0dp"
                 android:layout_height="wrap_content"
                 style="@style/my_btn_normal_style"/>
             <Button
-                android:id="@+id/btn_reboot"
-                android:text="@string/control_reboot"
+                android:id="@+id/btn_pump_off"
+                android:text="@string/control_pump_off"
                 android:layout_weight="1"
                 android:layout_width="0dp"
                 android:layout_height="wrap_content"
