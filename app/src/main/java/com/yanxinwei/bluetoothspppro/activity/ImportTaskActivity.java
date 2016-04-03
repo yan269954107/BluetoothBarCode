@@ -1,15 +1,15 @@
 package com.yanxinwei.bluetoothspppro.activity;
 
 import android.app.ProgressDialog;
+import android.content.Context;
 import android.content.Intent;
 import android.net.Uri;
 import android.os.Bundle;
 import android.os.Handler;
 import android.text.TextUtils;
-import android.view.Menu;
-import android.view.MenuItem;
 import android.view.View;
 import android.widget.AdapterView;
+import android.widget.LinearLayout;
 import android.widget.ListView;
 import android.widget.TextView;
 
@@ -18,8 +18,7 @@ import com.yanxinwei.bluetoothspppro.adapter.TaskAdapter;
 import com.yanxinwei.bluetoothspppro.core.AppConstants;
 import com.yanxinwei.bluetoothspppro.core.BaseActivity;
 import com.yanxinwei.bluetoothspppro.model.NormalTask;
-import com.yanxinwei.bluetoothspppro.util.SDLog;
-import com.yanxinwei.bluetoothspppro.util.SPUtils;
+import com.yanxinwei.bluetoothspppro.util.F;
 import com.yanxinwei.bluetoothspppro.util.T;
 
 import org.apache.poi.ss.usermodel.Cell;
@@ -39,9 +38,11 @@ import butterknife.ButterKnife;
 public class ImportTaskActivity extends BaseActivity {
 
     public static final String TASK_PATH = "taskPath";
-    public static final String TASK_REPEAT_PATH = "taskRepeatPath";
-    //0:未初始化  1:普通任务  2:复检任务
-    public static final String LATEST_TASK_TYPE = "latestTaskType";
+    //1:检测任务  2:复检任务
+    public static final String TASK_TYPE = "taskType";
+//    public static final String TASK_REPEAT_PATH = "taskRepeatPath";
+//    //0:未初始化  1:普通任务  2:复检任务
+//    public static final String LATEST_TASK_TYPE = "latestTaskType";
 
     private static final int MENU_ID_IMPORT_TASK = 0x01;
     private static final int MENU_ID_IMPORT_REPEAT_TASK = 0x02;
@@ -66,6 +67,25 @@ public class ImportTaskActivity extends BaseActivity {
     @Bind(R.id.empty_view)
     TextView mEmptyView;
 
+    @Bind(R.id.linearLayout)
+    LinearLayout mLinearLayout;
+
+    @Bind(R.id.txt_task_num)
+    TextView txtTaskNum;
+
+    @Bind(R.id.txt_task_tested)
+    TextView txtTaskTested;
+
+    @Bind(R.id.txt_task_leakage)
+    TextView txtTaskLeakage;
+
+    public static Intent createIntent(Context context, String path, int type){
+        Intent intent = new Intent(context, ImportTaskActivity.class);
+        intent.putExtra(TASK_PATH, path);
+        intent.putExtra(TASK_TYPE, type);
+        return intent;
+    }
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -74,32 +94,46 @@ public class ImportTaskActivity extends BaseActivity {
         ButterKnife.bind(this);
 
 //        SDLog.open();
+        taskType = getIntent().getIntExtra(TASK_TYPE, 0);
+        if (taskType == 1){
+            taskPath = F.TEST_TASK_DIR.concat("/").concat(getIntent().getStringExtra(TASK_PATH));
+        }else if (taskType == 2){
+            taskPath = F.REPEAT_TASK_DIR.concat("/").concat(getIntent().getStringExtra(TASK_PATH));
+        }
+
 
         mTaskList.setEmptyView(mEmptyView);
         mTaskList.setOnItemClickListener(new AdapterView.OnItemClickListener() {
             @Override
             public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
-                Intent intent = NormalTaskActivity.createIntent(ImportTaskActivity.this,
-                        mAdapter.getItem(position), position);
+                Intent intent = null;
+                if (taskType == 1){
+                   intent = NormalTaskActivity.createIntent(ImportTaskActivity.this,
+                            mAdapter.getItem(position), position, taskPath);
+                }else {
+
+                }
+
                 startActivityForResult(intent, REQUEST_CODE);
             }
         });
 
-        taskType = (int) SPUtils.get(this, LATEST_TASK_TYPE, 0);
-        //未加载到任务,显示空界面
-        if (taskType == 0){
+        loadTask();
+//        taskType = (int) SPUtils.get(this, LATEST_TASK_TYPE, 0);
+//        //未加载到任务,显示空界面
+//        if (taskType == 0){
 //            mTaskList.setVisibility(View.GONE);
 //            mEmptyView.setVisibility(View.VISIBLE);
-        } else {
-            if (taskType == 1){
-                taskPath = (String) SPUtils.get(this, TASK_PATH, "");
-                getSupportActionBar().setTitle("检测任务");
-            } else {
-                taskPath = (String) SPUtils.get(this, TASK_REPEAT_PATH, "");
-                getSupportActionBar().setTitle("复检任务");
-            }
-            loadTask();
-        }
+//        } else {
+//            if (taskType == 1){
+//                taskPath = (String) SPUtils.get(this, TASK_PATH, "");
+//                getSupportActionBar().setTitle("检测任务");
+//            } else {
+//                taskPath = (String) SPUtils.get(this, TASK_REPEAT_PATH, "");
+//                getSupportActionBar().setTitle("复检任务");
+//            }
+//            loadTask();
+//        }
 
     }
 
@@ -117,46 +151,46 @@ public class ImportTaskActivity extends BaseActivity {
 
     }
 
-    @Override
-    public boolean onCreateOptionsMenu(Menu menu) {
-        MenuItem miImportTask = menu.add(0, MENU_ID_IMPORT_TASK, 0, getString(R.string.menu_import_task));
-        miImportTask.setShowAsAction(MenuItem.SHOW_AS_ACTION_NEVER); //一直隐藏
-
-        MenuItem miImportRepeatTask = menu.add(0, MENU_ID_IMPORT_REPEAT_TASK, 0,
-                getString(R.string.menu_import_repeat_task));
-        miImportRepeatTask.setShowAsAction(MenuItem.SHOW_AS_ACTION_NEVER); //一直隐藏
-        return super.onCreateOptionsMenu(menu);
-    }
-
-    @Override
-    public boolean onOptionsItemSelected(MenuItem item) {
-        switch (item.getItemId()){
-            case MENU_ID_IMPORT_TASK:
-                taskType = 1;
-                showFileSelected();
-                return true;
-            case MENU_ID_IMPORT_REPEAT_TASK:
-//                taskType = 2;
+//    @Override
+//    public boolean onCreateOptionsMenu(Menu menu) {
+//        MenuItem miImportTask = menu.add(0, MENU_ID_IMPORT_TASK, 0, getString(R.string.menu_import_task));
+//        miImportTask.setShowAsAction(MenuItem.SHOW_AS_ACTION_NEVER); //一直隐藏
+//
+//        MenuItem miImportRepeatTask = menu.add(0, MENU_ID_IMPORT_REPEAT_TASK, 0,
+//                getString(R.string.menu_import_repeat_task));
+//        miImportRepeatTask.setShowAsAction(MenuItem.SHOW_AS_ACTION_NEVER); //一直隐藏
+//        return super.onCreateOptionsMenu(menu);
+//    }
+//
+//    @Override
+//    public boolean onOptionsItemSelected(MenuItem item) {
+//        switch (item.getItemId()){
+//            case MENU_ID_IMPORT_TASK:
+//                taskType = 1;
 //                showFileSelected();
-                return  true;
-            default:
-                return super.onOptionsItemSelected(item);
-        }
-    }
+//                return true;
+//            case MENU_ID_IMPORT_REPEAT_TASK:
+////                taskType = 2;
+////                showFileSelected();
+//                return  true;
+//            default:
+//                return super.onOptionsItemSelected(item);
+//        }
+//    }
 
-    private void showFileSelected() {
-
-        Intent intent = new Intent(Intent.ACTION_GET_CONTENT);
-        intent.setType("*/*");
-        intent.addCategory(Intent.CATEGORY_OPENABLE);
-        try {
-            startActivityForResult(Intent.createChooser(intent, "请选择一个要导入的excel任务"),
-                    FILE_SELECT_CODE);
-        } catch (android.content.ActivityNotFoundException ex) {
-            T.showShort(this, "请安装文件管理器");
-        }
-
-    }
+//    private void showFileSelected() {
+//
+//        Intent intent = new Intent(Intent.ACTION_GET_CONTENT);
+//        intent.setType("*/*");
+//        intent.addCategory(Intent.CATEGORY_OPENABLE);
+//        try {
+//            startActivityForResult(Intent.createChooser(intent, "请选择一个要导入的excel任务"),
+//                    FILE_SELECT_CODE);
+//        } catch (android.content.ActivityNotFoundException ex) {
+//            T.showShort(this, "请安装文件管理器");
+//        }
+//
+//    }
 
     @Override
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
@@ -233,22 +267,44 @@ public class ImportTaskActivity extends BaseActivity {
                             mProgressDialog.dismiss();
                             mAdapter = new TaskAdapter(ImportTaskActivity.this, mNormalTasks);
                             mTaskList.setAdapter(mAdapter);
-                            SPUtils.put(ImportTaskActivity.this, LATEST_TASK_TYPE, taskType);
-                            String key;
-                            if (taskType == 1){
-                                key = TASK_PATH;
-                                getSupportActionBar().setTitle("检测任务");
-                            }else {
-                                key = TASK_REPEAT_PATH;
-                                getSupportActionBar().setTitle("复检任务");
-                            }
-                            SPUtils.put(ImportTaskActivity.this, key, path);
+                            showCount();
+//                            SPUtils.put(ImportTaskActivity.this, LATEST_TASK_TYPE, taskType);
+//                            String key;
+//                            if (taskType == 1){
+//                                key = TASK_PATH;
+//                                getSupportActionBar().setTitle("检测任务");
+//                            }else {
+//                                key = TASK_REPEAT_PATH;
+//                                getSupportActionBar().setTitle("复检任务");
+//                            }
+//                            SPUtils.put(ImportTaskActivity.this, key, path);
                         }
                     });
                 }
             }
         }).start();
 
+    }
+
+    private void showCount(){
+        mLinearLayout.setVisibility(View.VISIBLE);
+        int taskNum = 0,taskTested = 0,taskLeakage = 0;
+        if (taskType == 1){
+            for (NormalTask task : mNormalTasks){
+                taskNum ++;
+                if (!TextUtils.isEmpty(task.getDetectDate())){
+                    taskTested ++;
+                    if (task.getDetectValue() > task.getLeakageThreshold()){
+                        taskLeakage ++;
+                    }
+                }
+            }
+        }else if (taskType == 2){
+
+        }
+        txtTaskNum.setText("任务点数:"+taskNum);
+        txtTaskTested.setText("已测点数:"+taskTested);
+        txtTaskLeakage.setText("泄露点数:"+taskLeakage);
     }
 
     private Object convertCellValue(Cell cell){

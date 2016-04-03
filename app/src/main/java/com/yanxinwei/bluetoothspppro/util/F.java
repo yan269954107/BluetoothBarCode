@@ -16,6 +16,9 @@ import java.io.InputStreamReader;
  */
 public class F {
 
+    public static final String TEST_TASK_DIR = SDLog.SD_PATH.concat("/检测任务");
+    public static final String REPEAT_TASK_DIR = SDLog.SD_PATH.concat("/复检任务");
+
     public static String readerSign(Context context){
         String content = null;
         try {
@@ -73,6 +76,17 @@ public class F {
             return;
         }
         oldFile.deleteOnExit();
+    }
+
+    public static void createFolder(){
+        File testFolder = new File(TEST_TASK_DIR);
+        File repeatFolder = new File(REPEAT_TASK_DIR);
+        if (!testFolder.exists()){
+            testFolder.mkdir();
+        }
+        if (!repeatFolder.exists()){
+            repeatFolder.mkdir();
+        }
     }
 
 }

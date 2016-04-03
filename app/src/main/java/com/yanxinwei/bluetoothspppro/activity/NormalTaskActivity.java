@@ -51,10 +51,11 @@ import java.util.Date;
 import butterknife.Bind;
 import butterknife.ButterKnife;
 
-public class NormalTaskActivity extends AppCompatActivity implements View.OnClickListener{
+public class NormalTaskActivity extends AppCompatActivity implements View.OnClickListener {
 
     public static final String NORMAL_TASK = "normal_task";
     public static final String TASK_ON_EXCEL_ROW = "task_on_excel_row";
+    public static final String TASK_FILE_PATH = "tak=sk_file_path";
 
     public static final String IS_SAVED = "isSaved";
     public static final String SAVED_POSITION = "savedPosition";
@@ -139,14 +140,17 @@ public class NormalTaskActivity extends AppCompatActivity implements View.OnClic
 
     //蓝牙接收数据相关参数
     private boolean mbThreadStop = false;
-    /**对象:引用全局的蓝牙连接对象*/
+    /**
+     * 对象:引用全局的蓝牙连接对象
+     */
     protected BluetoothSppClient mBSC = null;
     private Double mDetectMaxValue = -99999.0;
 
-    public static Intent createIntent(Context context, NormalTask normalTask, int row){
+    public static Intent createIntent(Context context, NormalTask normalTask, int row, String taskFilePath) {
         Intent intent = new Intent(context, NormalTaskActivity.class);
         intent.putExtra(NORMAL_TASK, normalTask);
         intent.putExtra(TASK_ON_EXCEL_ROW, row);
+        intent.putExtra(TASK_FILE_PATH, taskFilePath);
         return intent;
     }
 
@@ -159,8 +163,8 @@ public class NormalTaskActivity extends AppCompatActivity implements View.OnClic
 
         setSupportActionBar(mToolBar);
 
-        this.mBSC = ((globalPool)this.getApplicationContext()).mBSC;
-        if (null == this.mBSC || !this.mBSC.isConnect()){	//当进入时，发现连接已丢失，则直接返回主界面
+        this.mBSC = ((globalPool) this.getApplicationContext()).mBSC;
+        if (null == this.mBSC || !this.mBSC.isConnect()) {    //当进入时，发现连接已丢失，则直接返回主界面
             this.setResult(Activity.RESULT_CANCELED); //返回到主界面
             this.finish();
             T.showShort(this, "请先连接设备");
@@ -176,7 +180,7 @@ public class NormalTaskActivity extends AppCompatActivity implements View.OnClic
         mInflater = getLayoutInflater();
 
         mExcelRow = getIntent().getIntExtra(TASK_ON_EXCEL_ROW, -1);
-        if (mExcelRow != -1){
+        if (mExcelRow != -1) {
             mExcelRow += 1;  //要考虑表头的1行
         }
 
@@ -195,10 +199,10 @@ public class NormalTaskActivity extends AppCompatActivity implements View.OnClic
 
     @Override
     public boolean onKeyDown(int keyCode, KeyEvent event) {
-        if (keyCode == KeyEvent.KEYCODE_BACK){
+        if (keyCode == KeyEvent.KEYCODE_BACK) {
             Intent intent = new Intent();
             intent.putExtra(IS_SAVED, isSaved);
-            if (isSaved){
+            if (isSaved) {
                 intent.putExtra(SAVED_POSITION, mExcelRow - 1);
                 intent.putExtra(DETECTED_DATE, mEdtDetectDate.getText().toString());
                 setResult(RESULT_OK, intent);
@@ -219,15 +223,15 @@ public class NormalTaskActivity extends AppCompatActivity implements View.OnClic
         mEdtAddress.setText(task.getAddress());
         mEdtUnitType.setText(task.getUnitType());
         mEdtUnitSubType.setText(task.getUnitSubType());
-        mEdtLeakageThreshold.setText(task.getLeakageThreshold()+"");
-        mEdtMinTime.setText(task.getDetectMiniTime()+"");
+        mEdtLeakageThreshold.setText(task.getLeakageThreshold() + "");
+        mEdtMinTime.setText(task.getDetectMiniTime() + "");
         mDetectMinTime = (int) task.getDetectMiniTime();
         mEdtDetectDate.setText(task.getDetectDate());
         mEdtDetectDevice.setText(task.getDetectDevice());
-        mEdtDetectValue.setText(task.getDetectValue()+"");
-        if (task.getIsLeakage() == 0){
+        mEdtDetectValue.setText(task.getDetectValue() + "");
+        if (task.getIsLeakage() == 0) {
             mEdtIsLeakage.setText("否");
-        }else {
+        } else {
             mEdtIsLeakage.setText("是");
         }
         mEdtLeakagePosition.setText(task.getLeakagePosition());
@@ -238,7 +242,7 @@ public class NormalTaskActivity extends AppCompatActivity implements View.OnClic
 
     @Override
     public void onClick(View v) {
-        switch (v.getId()){
+        switch (v.getId()) {
             case R.id.txt_begin_test:
                 showDetectDialog();
                 break;
@@ -254,9 +258,9 @@ public class NormalTaskActivity extends AppCompatActivity implements View.OnClic
         }
     }
 
-    private void saveTask(){
+    private void saveTask() {
 
-        if (!isCompleted){
+        if (!isCompleted) {
             T.showShort(this, "请检测后再保存");
             return;
         }
@@ -266,53 +270,47 @@ public class NormalTaskActivity extends AppCompatActivity implements View.OnClic
         new Thread(new Runnable() {
             @Override
             public void run() {
-                int taskType = (int) SPUtils.get(NormalTaskActivity.this, ImportTaskActivity.LATEST_TASK_TYPE, 0);
-                if (taskType == 1){
-                    String path = (String) SPUtils.get(NormalTaskActivity.this, ImportTaskActivity.TASK_PATH, "");
-                    if (!path.equals("")){
-                        try {
-                            InputStream is = new FileInputStream(path);
-                            XSSFWorkbook workbook = new XSSFWorkbook(is);
-                            Sheet sheet = workbook.getSheetAt(1);
-                            Row row = sheet.getRow(mExcelRow);
+                String path = (String) SPUtils.get(NormalTaskActivity.this, ImportTaskActivity.TASK_PATH, "");
+                if (!path.equals("")) {
+                    try {
+                        InputStream is = new FileInputStream(path);
+                        XSSFWorkbook workbook = new XSSFWorkbook(is);
+                        Sheet sheet = workbook.getSheetAt(1);
+                        Row row = sheet.getRow(mExcelRow);
 
-                            setCellValue(row, AppConstants.CELL_DETECT_DATE, mEdtDetectDate.getText().toString());
+                        setCellValue(row, AppConstants.CELL_DETECT_DATE, mEdtDetectDate.getText().toString());
 
-                            setCellValue(row, AppConstants.CELL_DETECT_DEVICE, mEdtDetectDevice.getText().toString());
+                        setCellValue(row, AppConstants.CELL_DETECT_DEVICE, mEdtDetectDevice.getText().toString());
 
-                            Cell cellDetectValue = getCell(row, AppConstants.CELL_DETECT_VALUE);
-                            cellDetectValue.setCellValue(Double.parseDouble(mEdtDetectValue.getText().toString()));
+                        Cell cellDetectValue = getCell(row, AppConstants.CELL_DETECT_VALUE);
+                        cellDetectValue.setCellValue(Double.parseDouble(mEdtDetectValue.getText().toString()));
 
-                            int isLeakage = (int) task.getIsLeakage();
-                            Cell cellIsLeakage = getCell(row, AppConstants.CELL_IS_LEAKAGE);
-                            cellIsLeakage.setCellValue(task.getIsLeakage());
+                        int isLeakage = (int) task.getIsLeakage();
+                        Cell cellIsLeakage = getCell(row, AppConstants.CELL_IS_LEAKAGE);
+                        cellIsLeakage.setCellValue(task.getIsLeakage());
 
-                            if (isLeakage == 1){
-                                setCellValue(row, AppConstants.CELL_LEAKAGE_POSITION, mEdtLeakagePosition.getText().toString());
-                            }
-
-                            setCellValue(row, AppConstants.CELL_REMARKS, mEdtRemarks.getText().toString());
-
-                            FileOutputStream os = new FileOutputStream(path);
-                            workbook.write(os);
-
-                            is.close();
-                            os.close();
-
-                            showToast("保存成功");
-                            isSaved = true;
-
-                        } catch (IOException e) {
-                            e.printStackTrace();
-                        } finally {
-                            dismissProgress();
+                        if (isLeakage == 1) {
+                            setCellValue(row, AppConstants.CELL_LEAKAGE_POSITION, mEdtLeakagePosition.getText().toString());
                         }
 
-                    }else {
-                        showToast("请退出后重新导入任务");
+                        setCellValue(row, AppConstants.CELL_REMARKS, mEdtRemarks.getText().toString());
+
+                        FileOutputStream os = new FileOutputStream(path);
+                        workbook.write(os);
+
+                        is.close();
+                        os.close();
+
+                        showToast("保存成功");
+                        isSaved = true;
+
+                    } catch (IOException e) {
+                        e.printStackTrace();
+                    } finally {
                         dismissProgress();
                     }
-                }else {
+
+                } else {
                     showToast("请退出后重新导入任务");
                     dismissProgress();
                 }
@@ -322,7 +320,7 @@ public class NormalTaskActivity extends AppCompatActivity implements View.OnClic
 
     }
 
-    private void showToast(final String content){
+    private void showToast(final String content) {
         mHandler.post(new Runnable() {
             @Override
             public void run() {
@@ -331,7 +329,7 @@ public class NormalTaskActivity extends AppCompatActivity implements View.OnClic
         });
     }
 
-    private void dismissProgress(){
+    private void dismissProgress() {
         mHandler.post(new Runnable() {
             @Override
             public void run() {
@@ -347,13 +345,13 @@ public class NormalTaskActivity extends AppCompatActivity implements View.OnClic
 
     private Cell getCell(Row row, int cellNumber) {
         Cell cell = row.getCell(cellNumber);
-        if (null == cell){
+        if (null == cell) {
             cell = row.createCell(cellNumber);
         }
         return cell;
     }
 
-    private void completeDetect(){
+    private void completeDetect() {
         isDetecting = false;
         mDialogDetect.dismiss();
 
@@ -362,10 +360,10 @@ public class NormalTaskActivity extends AppCompatActivity implements View.OnClic
         String detectDevice = (String) SPUtils.get(this, SPUtils.SP_DETECT_DEVICE, "未设置");
         mEdtDetectDevice.setText(detectDevice);
         mEdtDetectValue.setText(mDetectMaxValue + "");
-        if (mDetectMaxValue >= task.getLeakageThreshold()){
+        if (mDetectMaxValue >= task.getLeakageThreshold()) {
             mEdtIsLeakage.setText("是");
             task.setIsLeakage(1);
-        }else {
+        } else {
             mEdtIsLeakage.setText("否");
             task.setIsLeakage(0);
         }
@@ -374,8 +372,7 @@ public class NormalTaskActivity extends AppCompatActivity implements View.OnClic
     }
 
 
-
-    private void showDialogList(){
+    private void showDialogList() {
         final AlertDialog.Builder dialogBuilder = new AlertDialog.Builder(this);
         View convertView = mInflater.inflate(R.layout.dialog_list_view, null);
         dialogBuilder.setView(convertView);
@@ -388,7 +385,7 @@ public class NormalTaskActivity extends AppCompatActivity implements View.OnClic
         lv.setOnItemClickListener(new AdapterView.OnItemClickListener() {
             @Override
             public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
-                if (dialog != null){
+                if (dialog != null) {
                     String p = AppConstants.leakagePosition[position];
                     mEdtLeakagePosition.setText(p);
                     dialog.dismiss();
@@ -397,10 +394,10 @@ public class NormalTaskActivity extends AppCompatActivity implements View.OnClic
         });
     }
 
-    private void showDetectDialog(){
+    private void showDetectDialog() {
 
         isDetecting = true;
-        if (mDialogDetect == null){
+        if (mDialogDetect == null) {
             final AlertDialog.Builder dialogBuilder = new AlertDialog.Builder(this);
             mDialogViewDetect = mInflater.inflate(R.layout.dialog_detect_data, null);
 
@@ -415,13 +412,13 @@ public class NormalTaskActivity extends AppCompatActivity implements View.OnClic
             dialogBuilder.setTitle("检测任务");
             dialogBuilder.setCancelable(false);
             mDialogDetect = dialogBuilder.show();
-        }else {
+        } else {
             mDialogDetect.show();
         }
         showRemainderTime();
     }
 
-    private void showRemainderTime(){
+    private void showRemainderTime() {
         mBtnComplete.setVisibility(View.INVISIBLE);
         ObjectAnimator animator = ObjectAnimator.ofInt(mTxtRemainderTime, "number", mDetectMinTime, 0)
                 .setDuration(mDetectMinTime * 1000);
@@ -481,19 +478,19 @@ public class NormalTaskActivity extends AppCompatActivity implements View.OnClic
         public void onProgressUpdate(String... progress) {
 //            mtvRecView.append(progress[0]); //显示区中追加数据
             String data = progress[0];
-            if (isDetecting){
+            if (isDetecting) {
                 int index = data.indexOf("OK");
-                if (index!=-1){
-                    data = data.substring(0,index);
+                if (index != -1) {
+                    data = data.substring(0, index);
                 }
                 try {
                     Double value = Double.valueOf(data);
                     mTxtDetectValue.setText(value + "");
-                    if (value > mDetectMaxValue){
+                    if (value > mDetectMaxValue) {
                         mDetectMaxValue = value;
                         mTxtDetectMaxValue.setText(mDetectMaxValue + "");
                     }
-                }catch (Exception e){
+                } catch (Exception e) {
                     e.printStackTrace();
                 }
             }
@@ -513,9 +510,10 @@ public class NormalTaskActivity extends AppCompatActivity implements View.OnClic
 
     /**
      * 初始化输入输出模式
+     *
      * @return void
-     * */
-    protected void initIO_Mode(){
+     */
+    protected void initIO_Mode() {
         mBSC.setRxdMode(BluetoothSppClient.IO_MODE_STRING);
         mBSC.setTxdMode(BluetoothSppClient.IO_MODE_STRING);
     }

@@ -50,7 +50,7 @@ public class TaskAdapter extends BaseAdapter {
         if (convertView == null) {
             convertView = mInflater.inflate(R.layout.item_task_info, null);
             holder = new ViewHolder();
-            holder.txtAddress = (TextView) convertView.findViewById(R.id.txt_address);
+            holder.txtUnitSubType = (TextView) convertView.findViewById(R.id.txt_unit_sub_type);
             holder.txtUnitType = (TextView) convertView.findViewById(R.id.txt_unit_type);
             holder.txtLabelNumber = (TextView) convertView.findViewById(R.id.txt_label_number);
             holder.imgState = (ImageView) convertView.findViewById(R.id.img_state);
@@ -59,21 +59,25 @@ public class TaskAdapter extends BaseAdapter {
             holder = (ViewHolder) convertView.getTag();
         }
         NormalTask normalTask = mTasks.get(position);
-        holder.txtAddress.setText(normalTask.getAddress());
-        holder.txtUnitType.setText(normalTask.getUnitType());
-        holder.txtLabelNumber.setText(normalTask.getLabelNumber());
+        holder.txtUnitSubType.setText("组件子类型"+normalTask.getUnitSubType());
+        holder.txtUnitType.setText("组件类型"+normalTask.getUnitType());
+        holder.txtLabelNumber.setText("标签号"+normalTask.getLabelNumber());
         if (TextUtils.isEmpty(normalTask.getDetectDate())){
             holder.imgState.setImageResource(R.drawable.ic_gray_tick_circle);
         }else {
-            holder.imgState.setImageResource(R.drawable.ic_green_tick_circle);
+            if (normalTask.getDetectValue() > normalTask.getLeakageThreshold()){
+                holder.imgState.setImageResource(R.drawable.ic_red_tick_circle);
+            }else {
+                holder.imgState.setImageResource(R.drawable.ic_green_tick_circle);
+            }
         }
         return convertView;
     }
 
     static class ViewHolder{
-        TextView txtAddress;
-        TextView txtUnitType;
         TextView txtLabelNumber;
+        TextView txtUnitType;
+        TextView txtUnitSubType;
         ImageView imgState;
     }
 }

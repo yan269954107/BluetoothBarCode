@@ -16,8 +16,8 @@ import android.widget.TextView;
 import com.yanxinwei.bluetoothspppro.BLE_SPP_PRO.actMain;
 import com.yanxinwei.bluetoothspppro.BLE_SPP_PRO.globalPool;
 import com.yanxinwei.bluetoothspppro.activity.ControlEquipmentActivity;
-import com.yanxinwei.bluetoothspppro.activity.ImportTaskActivity;
 import com.yanxinwei.bluetoothspppro.activity.SettingActivity;
+import com.yanxinwei.bluetoothspppro.activity.TestTaskActivity;
 import com.yanxinwei.bluetoothspppro.core.BaseActivity;
 import com.yanxinwei.bluetoothspppro.util.F;
 import com.yanxinwei.bluetoothspppro.util.L;
@@ -104,6 +104,8 @@ public class MainActivity extends BaseActivity implements View.OnClickListener {
         }else {
             checkSDCard();
         }
+
+        F.createFolder();
     }
 
 
@@ -191,7 +193,7 @@ public class MainActivity extends BaseActivity implements View.OnClickListener {
                 intent = new Intent(this, actMain.class);
                 break;
             case R.id.btn_import_task:
-                intent = new Intent(this, ImportTaskActivity.class);
+                intent = new Intent(this, TestTaskActivity.class);
                 break;
             case R.id.btn_testing:
 
