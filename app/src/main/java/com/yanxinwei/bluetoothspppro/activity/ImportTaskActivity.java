@@ -3,7 +3,6 @@ package com.yanxinwei.bluetoothspppro.activity;
 import android.app.ProgressDialog;
 import android.content.Context;
 import android.content.Intent;
-import android.net.Uri;
 import android.os.Bundle;
 import android.os.Handler;
 import android.text.TextUtils;
@@ -18,14 +17,16 @@ import com.yanxinwei.bluetoothspppro.R;
 import com.yanxinwei.bluetoothspppro.adapter.TaskAdapter;
 import com.yanxinwei.bluetoothspppro.core.AppConstants;
 import com.yanxinwei.bluetoothspppro.core.BaseActivity;
+import com.yanxinwei.bluetoothspppro.event.TaskCompleteEvent;
 import com.yanxinwei.bluetoothspppro.model.NormalTask;
 import com.yanxinwei.bluetoothspppro.util.F;
-import com.yanxinwei.bluetoothspppro.util.T;
 
 import org.apache.poi.ss.usermodel.Cell;
 import org.apache.poi.ss.usermodel.Row;
 import org.apache.poi.ss.usermodel.Sheet;
 import org.apache.poi.xssf.usermodel.XSSFWorkbook;
+import org.greenrobot.eventbus.EventBus;
+import org.greenrobot.eventbus.Subscribe;
 
 import java.io.FileInputStream;
 import java.io.IOException;
@@ -139,13 +140,19 @@ public class ImportTaskActivity extends BaseActivity {
 //            }
 //            loadTask();
 //        }
-
+        EventBus.getDefault().register(this);
     }
 
     @Override
     protected void onDestroy() {
 //        SDLog.close();
+        EventBus.getDefault().unregister(this);
         super.onDestroy();
+    }
+
+    @Subscribe
+    public void onCompleteEvent(TaskCompleteEvent event){
+        mAdapter.notifyDataSetChanged();
     }
 
     private void loadTask() {
@@ -200,28 +207,28 @@ public class ImportTaskActivity extends BaseActivity {
     @Override
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
 
-        if (requestCode == FILE_SELECT_CODE){
-            if (resultCode == RESULT_OK){
-                Uri uri = data.getData();
-                T.showShort(this, uri.getPath());
-//                SDLog.appendLog("path"+uri.getPath());
-                importTask(uri.getPath());
-            }else {
-                T.showShort(this, "请选择一个需要导入的任务文件");
-            }
-        }else if (requestCode == REQUEST_CODE){
-            if (resultCode == RESULT_OK){
-                int row = data.getIntExtra(NormalTaskActivity.SAVED_POSITION, -1);
-                if (row != -1){
-                    String detectDate = data.getStringExtra(NormalTaskActivity.DETECTED_DATE);
-                    if (!TextUtils.isEmpty(detectDate)){
-                        NormalTask task = mNormalTasks.get(row);
-                        task.setDetectDate(detectDate);
-                        mAdapter.notifyDataSetChanged();
-                    }
-                }
-            }
-        }
+//        if (requestCode == FILE_SELECT_CODE){
+//            if (resultCode == RESULT_OK){
+//                Uri uri = data.getData();
+//                T.showShort(this, uri.getPath());
+////                SDLog.appendLog("path"+uri.getPath());
+//                importTask(uri.getPath());
+//            }else {
+//                T.showShort(this, "请选择一个需要导入的任务文件");
+//            }
+//        }else if (requestCode == REQUEST_CODE){
+//            if (resultCode == RESULT_OK){
+//                int row = data.getIntExtra(NormalTaskActivity.SAVED_POSITION, -1);
+//                if (row != -1){
+//                    String detectDate = data.getStringExtra(NormalTaskActivity.DETECTED_DATE);
+//                    if (!TextUtils.isEmpty(detectDate)){
+//                        NormalTask task = mNormalTasks.get(row);
+//                        task.setDetectDate(detectDate);
+//                        mAdapter.notifyDataSetChanged();
+//                    }
+//                }
+//            }
+//        }
     }
 
     private void importTask(final String path){

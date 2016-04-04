@@ -26,9 +26,11 @@ import android.widget.TextView;
 import com.yanxinwei.bluetoothspppro.BLE_SPP_PRO.BaseCommActivity;
 import com.yanxinwei.bluetoothspppro.BLE_SPP_PRO.actMain;
 import com.yanxinwei.bluetoothspppro.BLE_SPP_PRO.globalPool;
+import com.yanxinwei.bluetoothspppro.BuildConfig;
 import com.yanxinwei.bluetoothspppro.R;
 import com.yanxinwei.bluetoothspppro.bluetooth.BluetoothSppClient;
 import com.yanxinwei.bluetoothspppro.core.AppConstants;
+import com.yanxinwei.bluetoothspppro.event.TaskCompleteEvent;
 import com.yanxinwei.bluetoothspppro.itf.AnimatorEndListener;
 import com.yanxinwei.bluetoothspppro.model.NormalTask;
 import com.yanxinwei.bluetoothspppro.util.SPUtils;
@@ -39,6 +41,7 @@ import org.apache.poi.ss.usermodel.Cell;
 import org.apache.poi.ss.usermodel.Row;
 import org.apache.poi.ss.usermodel.Sheet;
 import org.apache.poi.xssf.usermodel.XSSFWorkbook;
+import org.greenrobot.eventbus.EventBus;
 
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
@@ -131,6 +134,7 @@ public class NormalTaskActivity extends AppCompatActivity implements View.OnClic
     private NumberTextView mTxtRemainderTime;
 
     private int mDetectMinTime;
+    private String mDetectTime;
 
     //是否正在检测数据
     private boolean isDetecting = false;
@@ -198,17 +202,17 @@ public class NormalTaskActivity extends AppCompatActivity implements View.OnClic
 
     @Override
     public boolean onKeyDown(int keyCode, KeyEvent event) {
-        if (keyCode == KeyEvent.KEYCODE_BACK) {
-            Intent intent = new Intent();
-            intent.putExtra(IS_SAVED, isSaved);
-            if (isSaved) {
-                intent.putExtra(SAVED_POSITION, mExcelRow - 1);
-                intent.putExtra(DETECTED_DATE, mEdtDetectDate.getText().toString());
-                setResult(RESULT_OK, intent);
-            } else {
-                setResult(RESULT_CANCELED, intent);
-            }
-        }
+//        if (keyCode == KeyEvent.KEYCODE_BACK) {
+//            Intent intent = new Intent();
+//            intent.putExtra(IS_SAVED, isSaved);
+//            if (isSaved) {
+//                intent.putExtra(SAVED_POSITION, mExcelRow - 1);
+//                intent.putExtra(DETECTED_DATE, mEdtDetectDate.getText().toString());
+//                setResult(RESULT_OK, intent);
+//            } else {
+//                setResult(RESULT_CANCELED, intent);
+//            }
+//        }
         return super.onKeyDown(keyCode, event);
     }
 
@@ -225,6 +229,8 @@ public class NormalTaskActivity extends AppCompatActivity implements View.OnClic
         mEdtLeakageThreshold.setText(task.getLeakageThreshold() + "");
         mEdtMinTime.setText(task.getDetectMiniTime() + "");
         mDetectMinTime = (int) task.getDetectMiniTime();
+        if (BuildConfig.DEBUG)
+            mDetectMinTime = 3;
         mEdtDetectDate.setText(task.getDetectDate());
         mEdtDetectDevice.setText(task.getDetectDevice());
         mEdtDetectValue.setText(task.getDetectValue() + "");
@@ -337,6 +343,20 @@ public class NormalTaskActivity extends AppCompatActivity implements View.OnClic
                         showToast("保存成功");
                         isSaved = true;
 
+                        mHandler.post(new Runnable() {
+                            @Override
+                            public void run() {
+                                NormalTask normalTask = mGP.getNormalTasks().get(mExcelRow - 1);
+                                normalTask.setDetectValue(mDetectMaxValue);
+                                normalTask.setDetectDate(mDetectTime);
+                                String detectDevice = (String) SPUtils.get(NormalTaskActivity.this,
+                                        SPUtils.SP_DETECT_DEVICE, "未设置");
+                                normalTask.setDetectDevice(detectDevice);
+                                normalTask.setIsLeakage(task.getIsLeakage());
+                                EventBus.getDefault().post(new TaskCompleteEvent());
+                            }
+                        });
+
                     } catch (IOException e) {
                         e.printStackTrace();
                     } finally {
@@ -388,8 +408,8 @@ public class NormalTaskActivity extends AppCompatActivity implements View.OnClic
         isDetecting = false;
         mDialogDetect.dismiss();
 
-        String date = new SimpleDateFormat("yyyy/MM/dd HH:mm:ss").format(new Date());
-        mEdtDetectDate.setText(date);
+        mDetectTime = new SimpleDateFormat("yyyy/MM/dd HH:mm:ss").format(new Date());
+        mEdtDetectDate.setText(mDetectTime);
         String detectDevice = (String) SPUtils.get(this, SPUtils.SP_DETECT_DEVICE, "未设置");
         mEdtDetectDevice.setText(detectDevice);
         mEdtDetectValue.setText(mDetectMaxValue + "");
@@ -402,6 +422,7 @@ public class NormalTaskActivity extends AppCompatActivity implements View.OnClic
         }
 
         isCompleted = true;
+
     }
 
 
@@ -428,6 +449,7 @@ public class NormalTaskActivity extends AppCompatActivity implements View.OnClic
     }
 
     private void startDetect() {
+        this.mBSC = ((globalPool) this.getApplicationContext()).mBSC;
         if (null == this.mBSC || !this.mBSC.isConnect()) {    //当进入时，发现连接已丢失，则直接返回主界面
 //            this.setResult(Activity.RESULT_CANCELED); //返回到主界面
 //            this.finish();
