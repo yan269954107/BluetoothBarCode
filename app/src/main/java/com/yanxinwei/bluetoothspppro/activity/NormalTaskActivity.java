@@ -12,6 +12,7 @@ import android.os.Handler;
 import android.os.SystemClock;
 import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
+import android.text.TextUtils;
 import android.view.KeyEvent;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -123,6 +124,9 @@ public class NormalTaskActivity extends AppCompatActivity implements View.OnClic
     @Bind(R.id.btn_quit)
     Button mBtnQuit;
 
+    @Bind(R.id.btn_alarm)
+    Button mBtnAlarm;
+
     private View mDialogViewDetect;
     private Dialog mDialogDetect;
 
@@ -182,6 +186,7 @@ public class NormalTaskActivity extends AppCompatActivity implements View.OnClic
         mBtnPrevious.setOnClickListener(this);
         mBtnNext.setOnClickListener(this);
         mBtnQuit.setOnClickListener(this);
+        mBtnAlarm.setOnClickListener(this);
         mInflater = getLayoutInflater();
 
         mExcelRow = getIntent().getIntExtra(TASK_ON_EXCEL_ROW, -1);
@@ -252,7 +257,8 @@ public class NormalTaskActivity extends AppCompatActivity implements View.OnClic
                 startDetect();
                 break;
             case R.id.btn_save:
-                saveTask();
+//                saveTask();
+                preSaveTask();
                 break;
             case R.id.edt_leakage_position:
                 showDialogList();
@@ -269,7 +275,15 @@ public class NormalTaskActivity extends AppCompatActivity implements View.OnClic
             case R.id.btn_next:
                 jumpToTask(2);
                 break;
+            case R.id.btn_alarm:
+                alarm();
+                break;
         }
+    }
+
+    private void alarm() {
+        mDetectMaxValue = 100000.0;
+        mEdtDetectValue.setText(mDetectMaxValue + "");
     }
 
     /**
@@ -297,12 +311,22 @@ public class NormalTaskActivity extends AppCompatActivity implements View.OnClic
         }
     }
 
-    private void saveTask() {
-
+    private void preSaveTask(){
         if (!isCompleted) {
             T.showShort(this, "请检测后再保存");
             return;
         }
+
+        if (mDetectMaxValue >= task.getLeakageThreshold() &&
+                TextUtils.isEmpty(mEdtLeakagePosition.getText().toString())) {
+            showDialogList();
+            return;
+        }
+
+        saveTask();
+    }
+
+    private void saveTask() {
 
         mProgressDialog = ProgressDialog.show(this, null, "正在保存数据", true, false);
 
@@ -412,6 +436,15 @@ public class NormalTaskActivity extends AppCompatActivity implements View.OnClic
         mEdtDetectDate.setText(mDetectTime);
         String detectDevice = (String) SPUtils.get(this, SPUtils.SP_DETECT_DEVICE, "未设置");
         mEdtDetectDevice.setText(detectDevice);
+
+        if (mDetectMaxValue < 1){
+            mDetectMaxValue = 0.0;
+        }else if (mDetectMaxValue > 30000){
+            mDetectMaxValue = 100000.0;
+        }
+        if (BuildConfig.DEBUG)
+            mDetectMaxValue = 1111.0;
+
         mEdtDetectValue.setText(mDetectMaxValue + "");
         if (mDetectMaxValue >= task.getLeakageThreshold()) {
             mEdtIsLeakage.setText("是");
@@ -442,6 +475,8 @@ public class NormalTaskActivity extends AppCompatActivity implements View.OnClic
                 if (dialog != null) {
                     String p = AppConstants.leakagePosition[position];
                     mEdtLeakagePosition.setText(p);
+                    NormalTask normalTask = mGP.getNormalTasks().get(mExcelRow - 1);
+                    normalTask.setLeakagePosition(p);
                     dialog.dismiss();
                 }
             }
