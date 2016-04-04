@@ -153,6 +153,7 @@ public class ImportTaskActivity extends BaseActivity {
     @Subscribe
     public void onCompleteEvent(TaskCompleteEvent event){
         mAdapter.notifyDataSetChanged();
+        showCount();
     }
 
     private void loadTask() {
