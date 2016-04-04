@@ -13,6 +13,7 @@ import android.widget.LinearLayout;
 import android.widget.ListView;
 import android.widget.TextView;
 
+import com.yanxinwei.bluetoothspppro.BLE_SPP_PRO.globalPool;
 import com.yanxinwei.bluetoothspppro.R;
 import com.yanxinwei.bluetoothspppro.adapter.TaskAdapter;
 import com.yanxinwei.bluetoothspppro.core.AppConstants;
@@ -46,6 +47,8 @@ public class ImportTaskActivity extends BaseActivity {
 
     private static final int MENU_ID_IMPORT_TASK = 0x01;
     private static final int MENU_ID_IMPORT_REPEAT_TASK = 0x02;
+
+    private globalPool mGP = null;
 
     private static final int FILE_SELECT_CODE = 1001;
     private static final int REQUEST_CODE = 1002;
@@ -94,6 +97,8 @@ public class ImportTaskActivity extends BaseActivity {
         ButterKnife.bind(this);
 
 //        SDLog.open();
+        mGP = (globalPool)getApplicationContext();
+
         taskType = getIntent().getIntExtra(TASK_TYPE, 0);
         if (taskType == 1){
             taskPath = F.TEST_TASK_DIR.concat("/").concat(getIntent().getStringExtra(TASK_PATH));
@@ -264,6 +269,7 @@ public class ImportTaskActivity extends BaseActivity {
                     mHandler.post(new Runnable() {
                         @Override
                         public void run() {
+                            mGP.setNormalTasks(mNormalTasks);
                             mProgressDialog.dismiss();
                             mAdapter = new TaskAdapter(ImportTaskActivity.this, mNormalTasks);
                             mTaskList.setAdapter(mAdapter);

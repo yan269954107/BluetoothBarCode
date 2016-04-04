@@ -4,8 +4,12 @@ import android.support.multidex.MultiDexApplication;
 
 import com.yanxinwei.bluetoothspppro.R;
 import com.yanxinwei.bluetoothspppro.bluetooth.BluetoothSppClient;
+import com.yanxinwei.bluetoothspppro.model.NormalTask;
+import com.yanxinwei.bluetoothspppro.model.RepeatTask;
 import com.yanxinwei.bluetoothspppro.storage.CJsonStorage;
 import com.yanxinwei.bluetoothspppro.storage.CKVStorage;
+
+import java.util.ArrayList;
 
 public class globalPool extends MultiDexApplication
 {
@@ -13,6 +17,9 @@ public class globalPool extends MultiDexApplication
 	public BluetoothSppClient mBSC = null;
 	/**动态公共存储对象*/
 	public CKVStorage mDS = null;
+
+	private ArrayList<NormalTask> mNormalTasks = null;
+	private ArrayList<RepeatTask> mRepeatTasks = null;
 	/**
 	 * 覆盖构造
 	 * */
@@ -51,5 +58,21 @@ public class globalPool extends MultiDexApplication
 			this.mBSC.closeConn();
 			this.mBSC = null;
 		}
+	}
+
+	public ArrayList<NormalTask> getNormalTasks() {
+		return mNormalTasks;
+	}
+
+	public void setNormalTasks(ArrayList<NormalTask> normalTasks) {
+		mNormalTasks = normalTasks;
+	}
+
+	public ArrayList<RepeatTask> getRepeatTasks() {
+		return mRepeatTasks;
+	}
+
+	public void setRepeatTasks(ArrayList<RepeatTask> repeatTasks) {
+		mRepeatTasks = repeatTasks;
 	}
 }

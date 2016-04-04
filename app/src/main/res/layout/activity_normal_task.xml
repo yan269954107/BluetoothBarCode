@@ -1,43 +1,59 @@
 <?xml version="1.0" encoding="utf-8"?>
 
-<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
               xmlns:tools="http://schemas.android.com/tools"
               android:orientation="vertical"
               android:layout_width="match_parent"
               android:layout_height="match_parent">
 
-    <android.support.v7.widget.Toolbar
+    <LinearLayout
+        android:orientation="horizontal"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:id="@+id/toolbar"
-        android:background="@color/colorPrimary">
+        android:layout_alignParentTop="true"
+        android:layout_marginTop="5dp"
+        android:id="@+id/linearLayout2">
 
-        <TextView
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:id="@+id/txt_save_result"
-            android:text="保存"
+        <Button
+            android:layout_width="0dp"
+            android:layout_height="30dp"
+            android:layout_weight="1"
+            android:text="上一个"
+            android:id="@+id/btn_previous"
+            android:layout_marginLeft="10dp"
             android:layout_marginRight="10dp"
-            android:layout_gravity="right"
-            android:textColor="@color/white"
-            android:textSize="20sp"/>
+            style="@style/my_btn_test_style"/>
 
-        <TextView
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:id="@+id/txt_begin_test"
-            android:text="开始检测"
+        <Button
+            android:layout_width="0dp"
+            android:layout_height="30dp"
+            android:layout_weight="1"
+            android:text="退出"
+            android:id="@+id/btn_quit"
+            android:layout_marginLeft="10dp"
             android:layout_marginRight="10dp"
-            android:layout_gravity="right"
-            android:textColor="@color/white"
-            android:textSize="20sp"/>
+            style="@style/my_btn_test_style"/>
 
-    </android.support.v7.widget.Toolbar>
+        <Button
+            android:layout_width="0dp"
+            android:layout_height="30dp"
+            android:layout_weight="1"
+            android:text="下一个"
+            android:id="@+id/btn_next"
+            android:layout_marginLeft="10dp"
+            android:layout_marginRight="10dp"
+            style="@style/my_btn_test_style"/>
 
-    <ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
-                xmlns:tools="http://schemas.android.com/tools"
-                android:layout_width="match_parent"
-                android:layout_height="match_parent">
+
+    </LinearLayout>
+
+    <ScrollView
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:id="@+id/scrollView"
+        android:layout_below="@+id/linearLayout2"
+        android:layout_above="@+id/linearLayout3"
+        android:layout_centerHorizontal="true">
 
         <LinearLayout
             android:layout_width="match_parent"
@@ -375,13 +391,52 @@
                     android:id="@+id/edt_remarks"
                     android:layout_weight="3"/>
             </LinearLayout>
-
-
         </LinearLayout>
 
     </ScrollView>
 
-</LinearLayout>
+    <LinearLayout
+        android:orientation="horizontal"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:id="@+id/linearLayout3"
+        android:layout_marginBottom="5dp"
+        android:layout_alignParentBottom="true">
+
+        <Button
+            android:layout_width="0dp"
+            android:layout_height="30dp"
+            android:layout_weight="1"
+            android:text="检测"
+            android:id="@+id/btn_test"
+            android:layout_marginLeft="10dp"
+            android:layout_marginRight="10dp"
+            style="@style/my_btn_test_style"/>
+
+        <Button
+            android:layout_width="0dp"
+            android:layout_height="30dp"
+            android:layout_weight="1"
+            android:text="保存"
+            android:id="@+id/btn_save"
+            android:layout_marginLeft="10dp"
+            android:layout_marginRight="10dp"
+            style="@style/my_btn_test_style"/>
+
+        <Button
+            android:layout_width="0dp"
+            android:layout_height="30dp"
+            android:layout_weight="1"
+            android:text="报警"
+            android:id="@+id/btn_alarm"
+            android:layout_marginLeft="10dp"
+            android:layout_marginRight="10dp"
+            style="@style/my_btn_test_style"/>
+
+
+    </LinearLayout>
+
+</RelativeLayout>
 
 
 

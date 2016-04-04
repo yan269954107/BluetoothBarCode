@@ -2,7 +2,6 @@ package com.yanxinwei.bluetoothspppro.activity;
 
 import android.animation.Animator;
 import android.animation.ObjectAnimator;
-import android.app.Activity;
 import android.app.Dialog;
 import android.app.ProgressDialog;
 import android.content.Context;
@@ -13,7 +12,6 @@ import android.os.Handler;
 import android.os.SystemClock;
 import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
-import android.support.v7.widget.Toolbar;
 import android.view.KeyEvent;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -26,6 +24,7 @@ import android.widget.ListView;
 import android.widget.TextView;
 
 import com.yanxinwei.bluetoothspppro.BLE_SPP_PRO.BaseCommActivity;
+import com.yanxinwei.bluetoothspppro.BLE_SPP_PRO.actMain;
 import com.yanxinwei.bluetoothspppro.BLE_SPP_PRO.globalPool;
 import com.yanxinwei.bluetoothspppro.R;
 import com.yanxinwei.bluetoothspppro.bluetooth.BluetoothSppClient;
@@ -106,14 +105,20 @@ public class NormalTaskActivity extends AppCompatActivity implements View.OnClic
     @Bind(R.id.edt_remarks)
     EditText mEdtRemarks;
 
-    @Bind(R.id.toolbar)
-    Toolbar mToolBar;
+    @Bind(R.id.btn_test)
+    Button mBeginTest;
 
-    @Bind(R.id.txt_begin_test)
-    TextView mBeginTest;
+    @Bind(R.id.btn_save)
+    Button mSaveResult;
 
-    @Bind(R.id.txt_save_result)
-    TextView mSaveResult;
+    @Bind(R.id.btn_previous)
+    Button mBtnPrevious;
+
+    @Bind(R.id.btn_next)
+    Button mBtnNext;
+
+    @Bind(R.id.btn_quit)
+    Button mBtnQuit;
 
     private View mDialogViewDetect;
     private Dialog mDialogDetect;
@@ -132,6 +137,7 @@ public class NormalTaskActivity extends AppCompatActivity implements View.OnClic
     private boolean isSaved = false;
 
     private int mExcelRow = -1;
+    private String mTaskPath;
 
     private boolean isCompleted = false;
 
@@ -144,6 +150,7 @@ public class NormalTaskActivity extends AppCompatActivity implements View.OnClic
      * 对象:引用全局的蓝牙连接对象
      */
     protected BluetoothSppClient mBSC = null;
+    protected globalPool mGP = null;
     private Double mDetectMaxValue = -99999.0;
 
     public static Intent createIntent(Context context, NormalTask normalTask, int row, String taskFilePath) {
@@ -161,32 +168,24 @@ public class NormalTaskActivity extends AppCompatActivity implements View.OnClic
 
         ButterKnife.bind(this);
 
-        setSupportActionBar(mToolBar);
-
         this.mBSC = ((globalPool) this.getApplicationContext()).mBSC;
-        if (null == this.mBSC || !this.mBSC.isConnect()) {    //当进入时，发现连接已丢失，则直接返回主界面
-            this.setResult(Activity.RESULT_CANCELED); //返回到主界面
-            this.finish();
-            T.showShort(this, "请先连接设备");
-            return;
-        }
+        mGP = (globalPool) this.getApplicationContext();
 
         bindValue();
-        initIO_Mode();
-        setEndFlg();
 
         mBeginTest.setOnClickListener(this);
         mSaveResult.setOnClickListener(this);
+        mBtnPrevious.setOnClickListener(this);
+        mBtnNext.setOnClickListener(this);
+        mBtnQuit.setOnClickListener(this);
         mInflater = getLayoutInflater();
 
         mExcelRow = getIntent().getIntExtra(TASK_ON_EXCEL_ROW, -1);
         if (mExcelRow != -1) {
             mExcelRow += 1;  //要考虑表头的1行
         }
+        mTaskPath = getIntent().getStringExtra(TASK_FILE_PATH);
 
-        //初始化结束，启动接收线程
-        new receiveTask()
-                .executeOnExecutor(BaseCommActivity.FULL_TASK_EXECUTOR);
     }
 
     @Override
@@ -243,10 +242,10 @@ public class NormalTaskActivity extends AppCompatActivity implements View.OnClic
     @Override
     public void onClick(View v) {
         switch (v.getId()) {
-            case R.id.txt_begin_test:
-                showDetectDialog();
+            case R.id.btn_test:
+                startDetect();
                 break;
-            case R.id.txt_save_result:
+            case R.id.btn_save:
                 saveTask();
                 break;
             case R.id.edt_leakage_position:
@@ -255,6 +254,40 @@ public class NormalTaskActivity extends AppCompatActivity implements View.OnClic
             case R.id.btn_complete:
                 completeDetect();
                 break;
+            case R.id.btn_previous:
+                jumpToTask(1);
+                break;
+            case R.id.btn_quit:
+                finish();
+                break;
+            case R.id.btn_next:
+                jumpToTask(2);
+                break;
+        }
+    }
+
+    /**
+     * 跳转任务
+     * @param type  1:前一条   2:下一条
+     */
+    private void jumpToTask(int type){
+        int row = mExcelRow - 1;
+        if (type == 1){
+            row -= 1;
+        }else {
+            row += 1;
+        }
+        int length = mGP.getNormalTasks().size();
+        if (row < 0){
+            T.showShort(this, "已经是第一条了");
+        }else if (row > length - 1){
+            T.showShort(this, "已经是最后一条了");
+        }else {
+            NormalTask targetTask = mGP.getNormalTasks().get(row);
+            String path = mTaskPath;
+            Intent intent = createIntent(this, targetTask, row, path);
+            startActivity(intent);
+            finish();
         }
     }
 
@@ -270,7 +303,7 @@ public class NormalTaskActivity extends AppCompatActivity implements View.OnClic
         new Thread(new Runnable() {
             @Override
             public void run() {
-                String path = (String) SPUtils.get(NormalTaskActivity.this, ImportTaskActivity.TASK_PATH, "");
+                String path = mTaskPath;
                 if (!path.equals("")) {
                     try {
                         InputStream is = new FileInputStream(path);
@@ -392,6 +425,23 @@ public class NormalTaskActivity extends AppCompatActivity implements View.OnClic
                 }
             }
         });
+    }
+
+    private void startDetect() {
+        if (null == this.mBSC || !this.mBSC.isConnect()) {    //当进入时，发现连接已丢失，则直接返回主界面
+//            this.setResult(Activity.RESULT_CANCELED); //返回到主界面
+//            this.finish();
+            Intent intent = new Intent(this, actMain.class);
+            startActivity(intent);
+            T.showShort(this, "请先连接设备");
+            return;
+        }
+        initIO_Mode();
+        setEndFlg();
+        //初始化结束，启动接收线程
+        new receiveTask()
+                .executeOnExecutor(BaseCommActivity.FULL_TASK_EXECUTOR);
+        showDetectDialog();
     }
 
     private void showDetectDialog() {
