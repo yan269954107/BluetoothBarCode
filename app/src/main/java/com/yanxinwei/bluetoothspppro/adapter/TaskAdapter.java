@@ -59,9 +59,9 @@ public class TaskAdapter extends BaseAdapter {
             holder = (ViewHolder) convertView.getTag();
         }
         NormalTask normalTask = mTasks.get(position);
-        holder.txtUnitSubType.setText("组件子类型"+normalTask.getUnitSubType());
-        holder.txtUnitType.setText("组件类型"+normalTask.getUnitType());
-        holder.txtLabelNumber.setText("标签号"+normalTask.getLabelNumber());
+        holder.txtUnitSubType.setText(normalTask.getUnitSubType());
+        holder.txtUnitType.setText(normalTask.getUnitType());
+        holder.txtLabelNumber.setText(normalTask.getLabelNumber());
         if (TextUtils.isEmpty(normalTask.getDetectDate())){
             holder.imgState.setImageResource(R.drawable.ic_gray_tick_circle);
         }else {

@@ -25,6 +25,8 @@ public class ControlEquipmentActivity extends BaseCommActivity implements View.O
     private static final String IGNITE_FID = "ignite";
     private static final String PUMP_ON = "pump on";
     private static final String PUMP_OFF = "pump off";
+    private static final String DETECTOR_PID = "detector pid";
+    private static final String DETECTOR_FID = "detector fid";
 
     private static final String SCREEN = "screen";
     private static final String PUSH_1 = "push 1";
@@ -123,6 +125,8 @@ public class ControlEquipmentActivity extends BaseCommActivity implements View.O
         findViewById(R.id.btn_pump_on).setOnClickListener(this);
         findViewById(R.id.btn_pump_off).setOnClickListener(this);
         findViewById(R.id.btn_reboot).setOnClickListener(this);
+        findViewById(R.id.btn_detector_fid).setOnClickListener(this);
+        findViewById(R.id.btn_detector_pid).setOnClickListener(this);
 
         try {
             this.enabledBack(); //激活回退按钮
@@ -290,6 +294,12 @@ public class ControlEquipmentActivity extends BaseCommActivity implements View.O
                 sendCombinationOrders(
                         new String[]{SCREEN, PUSH_EX, QUIT, LOG_START},
                         new int[]{0, 200, 2200, 2400});
+                break;
+            case R.id.btn_detector_pid:
+                Send(DETECTOR_PID);
+                break;
+            case R.id.btn_detector_fid:
+                Send(DETECTOR_FID);
                 break;
         }
     }

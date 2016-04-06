@@ -56,6 +56,26 @@
                 android:layout_height="wrap_content"
                 style="@style/my_btn_normal_style"/>
         </LinearLayout>
+
+        <LinearLayout
+            android:orientation="horizontal"
+            android:layout_width="fill_parent"
+            android:layout_height="wrap_content">
+            <Button
+                android:id="@+id/btn_detector_fid"
+                android:text="@string/control_detector_fid"
+                android:layout_weight="1"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                style="@style/my_btn_normal_style"/>
+            <Button
+                android:id="@+id/btn_detector_pid"
+                android:text="@string/control_detector_pid"
+                android:layout_weight="1"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                style="@style/my_btn_normal_style"/>
+        </LinearLayout>
     </LinearLayout>
 
     <!-- 数据显示区 -->
