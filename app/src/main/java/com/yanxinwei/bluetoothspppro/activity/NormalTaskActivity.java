@@ -282,8 +282,15 @@ public class NormalTaskActivity extends AppCompatActivity implements View.OnClic
     }
 
     private void alarm() {
+        if (!isCompleted){
+            T.showShort(this, "请先进行检测");
+            return;
+        }
         mDetectMaxValue = 100000.0;
         mEdtDetectValue.setText(mDetectMaxValue + "");
+        mEdtIsLeakage.setText("是");
+        task.setIsLeakage(1);
+        showDialogList();
     }
 
     /**
@@ -478,6 +485,9 @@ public class NormalTaskActivity extends AppCompatActivity implements View.OnClic
                     NormalTask normalTask = mGP.getNormalTasks().get(mExcelRow - 1);
                     normalTask.setLeakagePosition(p);
                     dialog.dismiss();
+                    if (isCompleted){
+                        jumpToTask(2);
+                    }
                 }
             }
         });
