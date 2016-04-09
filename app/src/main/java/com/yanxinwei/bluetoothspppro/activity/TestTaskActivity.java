@@ -2,6 +2,7 @@ package com.yanxinwei.bluetoothspppro.activity;
 
 import android.content.Intent;
 import android.os.Bundle;
+import android.support.v7.app.ActionBar;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
@@ -14,6 +15,7 @@ import com.yanxinwei.bluetoothspppro.R;
 import com.yanxinwei.bluetoothspppro.core.BaseActivity;
 import com.yanxinwei.bluetoothspppro.util.F;
 import com.yanxinwei.bluetoothspppro.util.L;
+import com.yanxinwei.bluetoothspppro.util.SPUtils;
 
 import java.io.File;
 import java.util.ArrayList;
@@ -25,6 +27,8 @@ public class TestTaskActivity extends BaseActivity {
 
     private static final int MENU_ID_IMPORT_TASK = 0x01;
     private static final int MENU_ID_IMPORT_REPEAT_TASK = 0x02;
+
+    public static final String TASK_TYPE_PRE = "taskTypePre";
 
     private int taskType = 1;
     private ArrayList<String> fileNames;
@@ -53,6 +57,8 @@ public class TestTaskActivity extends BaseActivity {
             }
         });
 
+        taskType = (int) SPUtils.get(this, TASK_TYPE_PRE, 1);
+
         loadData();
     }
 
@@ -72,10 +78,14 @@ public class TestTaskActivity extends BaseActivity {
         switch (item.getItemId()){
             case MENU_ID_IMPORT_TASK:
                 taskType = 1;
+                setActionbarTitle("检测任务");
+                SPUtils.put(this, TASK_TYPE_PRE, 1);
                 loadData();
                 return true;
             case MENU_ID_IMPORT_REPEAT_TASK:
                 taskType = 2;
+                setActionbarTitle("复检任务");
+                SPUtils.put(this, TASK_TYPE_PRE, 2);
                 loadData();
                 return  true;
             default:
@@ -83,7 +93,12 @@ public class TestTaskActivity extends BaseActivity {
         }
     }
 
-
+    private void setActionbarTitle(String title) {
+        ActionBar actionBar = getSupportActionBar();
+        if (actionBar != null) {
+            actionBar.setTitle(title);
+        }
+    }
 
     private void loadData() {
         String dir;

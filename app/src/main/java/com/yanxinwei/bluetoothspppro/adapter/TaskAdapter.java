@@ -11,6 +11,7 @@ import android.widget.TextView;
 
 import com.yanxinwei.bluetoothspppro.R;
 import com.yanxinwei.bluetoothspppro.model.NormalTask;
+import com.yanxinwei.bluetoothspppro.model.RepeatTask;
 
 import java.util.ArrayList;
 
@@ -20,23 +21,37 @@ import java.util.ArrayList;
 public class TaskAdapter extends BaseAdapter {
 
     private Context mContext;
-    private ArrayList<NormalTask> mTasks;
+    private ArrayList<NormalTask> mTasks = null;
+    private ArrayList<RepeatTask> mRepeatTasks = null;
     private LayoutInflater mInflater;
 
-    public TaskAdapter(Context context, ArrayList<NormalTask> tasks) {
+    public TaskAdapter(Context context, ArrayList<NormalTask> tasks, ArrayList<RepeatTask> repeatTasks) {
         mContext = context;
         mTasks = tasks;
+        mRepeatTasks = repeatTasks;
         mInflater = LayoutInflater.from(mContext);
     }
 
+//    public TaskAdapter(Context context, ArrayList<RepeatTask> repeatTasks) {
+//        mContext = context;
+//        mRepeatTasks = repeatTasks;
+//        mInflater = LayoutInflater.from(mContext);
+//    }
+
     @Override
     public int getCount() {
-        return mTasks.size();
+        if (mTasks != null)
+            return mTasks.size();
+        else
+            return mRepeatTasks.size();
     }
 
     @Override
-    public NormalTask getItem(int position) {
-        return mTasks.get(position);
+    public Object getItem(int position) {
+        if (mTasks != null)
+            return mTasks.get(position);
+        else
+            return mRepeatTasks.get(position);
     }
 
     @Override
@@ -58,20 +73,76 @@ public class TaskAdapter extends BaseAdapter {
         }else {
             holder = (ViewHolder) convertView.getTag();
         }
-        NormalTask normalTask = mTasks.get(position);
-        holder.txtUnitSubType.setText(normalTask.getUnitSubType());
-        holder.txtUnitType.setText(normalTask.getUnitType());
-        holder.txtLabelNumber.setText(normalTask.getLabelNumber());
-        if (TextUtils.isEmpty(normalTask.getDetectDate())){
+//        NormalTask normalTask = mTasks.get(position);
+        holder.txtUnitSubType.setText(getParams(position, 1));
+        holder.txtUnitType.setText(getParams(position, 2));
+        holder.txtLabelNumber.setText(getParams(position, 3));
+        if (getBoolParams(position, 1)){
             holder.imgState.setImageResource(R.drawable.ic_gray_tick_circle);
         }else {
-            if (normalTask.getDetectValue() > normalTask.getLeakageThreshold()){
+            if (getBoolParams(position, 2)){
                 holder.imgState.setImageResource(R.drawable.ic_red_tick_circle);
             }else {
                 holder.imgState.setImageResource(R.drawable.ic_green_tick_circle);
             }
         }
         return convertView;
+    }
+
+    /**
+     * @param position
+     * @param type  1:unitSubType  2:unitType  3:labelNumber
+     * @return
+     */
+    private String getParams(int position, int type){
+        if (mTasks != null){
+            NormalTask normalTask = mTasks.get(position);
+            switch (type){
+                case 1:
+                    return normalTask.getUnitSubType();
+                case 2:
+                    return normalTask.getUnitType();
+                case 3:
+                    return normalTask.getLabelNumber();
+            }
+        }else {
+            RepeatTask repeatTask = mRepeatTasks.get(position);
+            switch (type){
+                case 1:
+                    return repeatTask.getUnitSubType();
+                case 2:
+                    return repeatTask.getUnitType();
+                case 3:
+                    return repeatTask.getLabelNumber();
+            }
+        }
+        return "";
+    }
+
+    /**
+     * @param position
+     * @param type  1:idDetected  2:isLeak
+     * @return
+     */
+    private boolean getBoolParams(int position, int type){
+        if (mTasks != null){
+            NormalTask normalTask = mTasks.get(position);
+            switch (type){
+                case 1:
+                    return TextUtils.isEmpty(normalTask.getDetectDate());
+                case 2:
+                    return normalTask.getDetectValue() > normalTask.getLeakageThreshold();
+            }
+        }else {
+            RepeatTask repeatTask = mRepeatTasks.get(position);
+            switch (type){
+                case 1:
+                    return TextUtils.isEmpty(repeatTask.getRepeatDate());
+                case 2:
+                    return repeatTask.getRepeatValue() > repeatTask.getLeakageThreshold();
+            }
+        }
+        return false;
     }
 
     static class ViewHolder{

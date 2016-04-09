@@ -1,12 +1,20 @@
 package com.yanxinwei.bluetoothspppro.model;
 
+import android.annotation.SuppressLint;
+
+import com.yanxinwei.bluetoothspppro.util.L;
+
+import java.lang.reflect.InvocationTargetException;
+import java.lang.reflect.Method;
+import java.util.HashMap;
+
 /**
  *
  * Created by yanxinwei on 16/3/19.
  */
 public class RepeatTask {
 
-    private String detectId;
+    private double detectId;
     private String detectedEquipment;
     private String area;
     private String detectedDevice;
@@ -29,11 +37,42 @@ public class RepeatTask {
     public RepeatTask() {
     }
 
-    public String getDetectId() {
-        return detectId;
+    @SuppressLint("UseSparseArrays")
+    public static final HashMap<Integer,MethodParams> convertMap = new HashMap<Integer,MethodParams>(){
+        {
+            put(0,  new MethodParams("setDetectId",double.class));
+            put(1,  new MethodParams("setDetectedEquipment",String.class));
+            put(2,  new MethodParams("setArea",String.class));
+            put(3,  new MethodParams("setDetectedDevice",String.class));
+            put(4,  new MethodParams("setLabelNumber",String.class));
+            put(5,  new MethodParams("setAddress",String.class));
+            put(6,  new MethodParams("setUnitType",String.class));
+            put(7,  new MethodParams("setUnitSubType",String.class));
+            put(8,  new MethodParams("setLeakageThreshold",double.class));
+            put(9,  new MethodParams("setDetectMiniTime",double.class));
+            put(10, new MethodParams("setDetectDate",String.class));
+            put(11, new MethodParams("setDetectValue",double.class));
+            put(12, new MethodParams("setMaintainDate",String.class));
+            put(13, new MethodParams("setMaintainPersonnel",String.class));
+            put(14, new MethodParams("setMaintainMeasure",String.class));
+            put(15, new MethodParams("setRepeatDate",String.class));
+            put(16, new MethodParams("setRepeatDevice",String.class));
+            put(17, new MethodParams("setRepeatValue",double.class));
+            put(18, new MethodParams("setRemarks",String.class));
+
+        }
+    };
+
+    public static final void convertField(RepeatTask repeatTask, int cellIndex, Object args) throws NoSuchMethodException, InvocationTargetException, IllegalAccessException {
+        Class cls = RepeatTask.class;
+        MethodParams methodParams = convertMap.get(cellIndex);
+        Method method = cls.getMethod(methodParams.getMethodName(),methodParams.getParamsType());
+        L.d("@@@@cellIndex:"+cellIndex+"   methodName:"+methodParams.getMethodName()
+                +"    paramsType:"+methodParams.getParamsType()+"    args:"+args);
+        method.invoke(repeatTask, args);
     }
 
-    public void setDetectId(String detectId) {
+    public void setDetectId(double detectId) {
         this.detectId = detectId;
     }
 

@@ -19,9 +19,12 @@ import com.yanxinwei.bluetoothspppro.core.AppConstants;
 import com.yanxinwei.bluetoothspppro.core.BaseActivity;
 import com.yanxinwei.bluetoothspppro.event.TaskCompleteEvent;
 import com.yanxinwei.bluetoothspppro.model.NormalTask;
+import com.yanxinwei.bluetoothspppro.model.RepeatTask;
 import com.yanxinwei.bluetoothspppro.util.F;
 
+import org.apache.poi.hssf.usermodel.HSSFDateUtil;
 import org.apache.poi.ss.usermodel.Cell;
+import org.apache.poi.ss.usermodel.DateUtil;
 import org.apache.poi.ss.usermodel.Row;
 import org.apache.poi.ss.usermodel.Sheet;
 import org.apache.poi.xssf.usermodel.XSSFWorkbook;
@@ -32,12 +35,16 @@ import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.lang.reflect.InvocationTargetException;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 
 import butterknife.Bind;
 import butterknife.ButterKnife;
 
 public class ImportTaskActivity extends BaseActivity {
+
+    private static final SimpleDateFormat date1 = new SimpleDateFormat("yyyy/M/d h:mm");
+    private static final SimpleDateFormat date2 = new SimpleDateFormat("yyyy/M/d");
 
     public static final String TASK_PATH = "taskPath";
     //1:检测任务  2:复检任务
@@ -57,6 +64,7 @@ public class ImportTaskActivity extends BaseActivity {
     private String taskPath;
 
     private ArrayList<NormalTask> mNormalTasks = new ArrayList<>(100);
+    private ArrayList<RepeatTask> mRepeatTasks = new ArrayList<>(100);
 
     private ProgressDialog mProgressDialog;
     private Handler mHandler = new Handler();
@@ -115,8 +123,8 @@ public class ImportTaskActivity extends BaseActivity {
                 Intent intent = null;
                 if (taskType == 1){
                    intent = NormalTaskActivity.createIntent(ImportTaskActivity.this,
-                            mAdapter.getItem(position), position, taskPath);
-                }else {
+                           (NormalTask) mAdapter.getItem(position), position, taskPath);
+                }else if (taskType == 2){
 
                 }
 
@@ -239,37 +247,11 @@ public class ImportTaskActivity extends BaseActivity {
             @Override
             public void run() {
                 try {
-                    mNormalTasks.clear();
-                    Row row;
-                    Cell cell;
-                    InputStream is = new FileInputStream(path);
-                    XSSFWorkbook workbook = new XSSFWorkbook(is);
-                    Sheet sheet = workbook.getSheetAt(1);
-                    int rowCount = sheet.getPhysicalNumberOfRows();
-//                    SDLog.appendLog("rowCount:"+rowCount);
-                    for (int r = 1; r < rowCount; r++){
-                        row = sheet.getRow(r);
-//                        int cellCount = row.getPhysicalNumberOfCells();
-                        NormalTask normalTask = new NormalTask();
-                        for (int c = 0; c < AppConstants.CELL_NUMBER; c++){
-                            cell = row.getCell(c);
-                            try {
-                                NormalTask.convertField(normalTask, c, convertCellValue(cell));
-                            } catch (NoSuchMethodException e) {
-                                e.printStackTrace();
-                                normalTask = null;
-                            } catch (InvocationTargetException e) {
-                                e.printStackTrace();
-                                normalTask = null;
-                            } catch (IllegalAccessException e) {
-                                e.printStackTrace();
-                                normalTask = null;
-                            }
-                        }
-                        if (null != normalTask)
-                            mNormalTasks.add(normalTask);
+                    if (taskType == 1){
+                        importNormalTask(path);
+                    }else if (taskType == 2){
+                        importRepeatTask(path);
                     }
-
                 } catch (IOException e) {
 //                    e.printStackTrace();
 //                    SDLog.appendLog("219 IOException:"+e.getMessage());
@@ -277,11 +259,16 @@ public class ImportTaskActivity extends BaseActivity {
                     mHandler.post(new Runnable() {
                         @Override
                         public void run() {
-                            mGP.setNormalTasks(mNormalTasks);
-                            mProgressDialog.dismiss();
-                            mAdapter = new TaskAdapter(ImportTaskActivity.this, mNormalTasks);
+                            if (taskType == 1) {
+                                mGP.setNormalTasks(mNormalTasks);
+                                mAdapter = new TaskAdapter(ImportTaskActivity.this, mNormalTasks, null);
+                            }else if (taskType == 2){
+                                mGP.setRepeatTasks(mRepeatTasks);
+                                mAdapter = new TaskAdapter(ImportTaskActivity.this, null, mRepeatTasks);
+                            }
                             mTaskList.setAdapter(mAdapter);
                             showCount();
+                            mProgressDialog.dismiss();
 //                            SPUtils.put(ImportTaskActivity.this, LATEST_TASK_TYPE, taskType);
 //                            String key;
 //                            if (taskType == 1){
@@ -297,7 +284,76 @@ public class ImportTaskActivity extends BaseActivity {
                 }
             }
         }).start();
+    }
 
+    private void importNormalTask(String path) throws IOException{
+        mNormalTasks.clear();
+        Row row;
+        Cell cell;
+        InputStream is = new FileInputStream(path);
+        XSSFWorkbook workbook = new XSSFWorkbook(is);
+        Sheet sheet = workbook.getSheetAt(1);
+        int rowCount = sheet.getPhysicalNumberOfRows();
+//                    SDLog.appendLog("rowCount:"+rowCount);
+        for (int r = 1; r < rowCount; r++){
+            row = sheet.getRow(r);
+//                        int cellCount = row.getPhysicalNumberOfCells();
+            NormalTask normalTask = new NormalTask();
+            for (int c = 0; c < AppConstants.CELL_NUMBER_NORMAL; c++){
+                cell = row.getCell(c);
+                try {
+                    NormalTask.convertField(normalTask, c, convertCellValue(cell));
+                } catch (NoSuchMethodException e) {
+                    e.printStackTrace();
+                    normalTask = null;
+                } catch (InvocationTargetException e) {
+                    e.printStackTrace();
+                    normalTask = null;
+                } catch (IllegalAccessException e) {
+                    e.printStackTrace();
+                    normalTask = null;
+                }
+            }
+            if (null != normalTask)
+                mNormalTasks.add(normalTask);
+        }
+    }
+
+    private void importRepeatTask(String path) throws IOException{
+        mRepeatTasks.clear();
+        Row row;
+        Cell cell;
+        InputStream is = new FileInputStream(path);
+        XSSFWorkbook workbook = new XSSFWorkbook(is);
+        Sheet sheet = workbook.getSheetAt(1);
+        int rowCount = sheet.getPhysicalNumberOfRows();
+//                    SDLog.appendLog("rowCount:"+rowCount);
+        for (int r = 1; r < rowCount; r++){
+            row = sheet.getRow(r);
+//                        int cellCount = row.getPhysicalNumberOfCells();
+            RepeatTask repeatTask = new RepeatTask();
+            for (int c = 0; c < AppConstants.CELL_NUMBER_REPEAT; c++){
+                cell = row.getCell(c);
+                try {
+                    Object cellValue = convertCellValue(cell);
+                    RepeatTask.convertField(repeatTask, c, cellValue);
+                } catch (NoSuchMethodException e) {
+                    e.printStackTrace();
+                    repeatTask = null;
+                    break;
+                } catch (InvocationTargetException e) {
+                    e.printStackTrace();
+                    repeatTask = null;
+                    break;
+                } catch (IllegalAccessException e) {
+                    e.printStackTrace();
+                    repeatTask = null;
+                    break;
+                }
+            }
+            if (null != repeatTask)
+                mRepeatTasks.add(repeatTask);
+        }
     }
 
     private void showCount(){
@@ -334,7 +390,22 @@ public class ImportTaskActivity extends BaseActivity {
                     case Cell.CELL_TYPE_ERROR:
                         return "";
                     case Cell.CELL_TYPE_NUMERIC:
-                        return cell.getNumericCellValue();
+                        if(HSSFDateUtil.isCellDateFormatted(cell)){
+                            if(cell.getCellStyle().getDataFormat() == 14){
+                                return date2.format(DateUtil.getJavaDate(cell.getNumericCellValue()));
+                            }else if(cell.getCellStyle().getDataFormat() == 22){
+                                return date1.format(DateUtil.getJavaDate(cell.getNumericCellValue()));
+                            }else {
+                                return date1.format(DateUtil.getJavaDate(cell.getNumericCellValue()));
+                            }
+                        }
+                        // 处理自定义日期格式：m月d日(通过判断单元格的格式id解决，id的值是58)
+                        else if(cell.getCellStyle().getDataFormat() == 58){
+                            return date1.format(DateUtil.getJavaDate(cell.getNumericCellValue()));
+                        }else {
+                            return cell.getNumericCellValue();
+                        }
+
                     case Cell.CELL_TYPE_STRING:
                         return cell.getStringCellValue();
                     default:
