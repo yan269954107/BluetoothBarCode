@@ -162,6 +162,8 @@ public class NormalTaskActivity extends AppCompatActivity implements View.OnClic
 
     private boolean isCompleted = false;
 
+    private boolean isShowToast = true;
+
     private ProgressDialog mProgressDialog;
     private Handler mHandler = new Handler();
 
@@ -319,6 +321,7 @@ public class NormalTaskActivity extends AppCompatActivity implements View.OnClic
      * @param type  1:前一条   2:下一条
      */
     private void jumpToTask(int type){
+        isShowToast = false;
         int row = mExcelRow - 1;
         if (type == 1){
             row -= 1;
@@ -666,8 +669,12 @@ public class NormalTaskActivity extends AppCompatActivity implements View.OnClic
         public void onPostExecute(Integer result) {
             if (CONNECT_LOST == result) //通信连接丢失
                 T.showShort(NormalTaskActivity.this, "通信连接丢失请重新连接设备");
-            else
-                T.showShort(NormalTaskActivity.this, "接收数据终止");
+            else{
+                if (isShowToast)
+                    T.showShort(NormalTaskActivity.this, "接收数据终止");
+            }
+
+
         }
     }
 
