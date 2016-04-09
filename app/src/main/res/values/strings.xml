@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <string name="app_name">蓝牙助手</string>
+    <string name="app_name">VOCsReader</string>
     <string name="language">zh-rCN</string>
     <string name="actMain_name">蓝牙串口助手</string>
     <string name="actMain_link_device_info_title">需要连接的设备：</string>å

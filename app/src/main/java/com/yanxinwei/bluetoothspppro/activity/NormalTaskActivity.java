@@ -56,6 +56,8 @@ import butterknife.ButterKnife;
 
 public class NormalTaskActivity extends AppCompatActivity implements View.OnClickListener {
 
+    public static final String BACKGROUND_VALUE = "backgroundValue";
+
     public static final String NORMAL_TASK = "normal_task";
     public static final String TASK_ON_EXCEL_ROW = "task_on_excel_row";
     public static final String TASK_FILE_PATH = "tak=sk_file_path";
@@ -63,6 +65,11 @@ public class NormalTaskActivity extends AppCompatActivity implements View.OnClic
     public static final String IS_SAVED = "isSaved";
     public static final String SAVED_POSITION = "savedPosition";
     public static final String DETECTED_DATE = "detectedDate";
+
+    private static final int MODE_DETECT = 1;
+    private static final int MODE_BACKGROUND = 2;
+    private int detectMode = MODE_DETECT;
+
 
     @Bind(R.id.edt_detected_equipment)
     EditText mEdtDetectedEquipment;
@@ -127,6 +134,12 @@ public class NormalTaskActivity extends AppCompatActivity implements View.OnClic
     @Bind(R.id.btn_alarm)
     Button mBtnAlarm;
 
+    @Bind(R.id.btn_background)
+    Button mBtnBackground;
+
+    @Bind(R.id.txt_background)
+    TextView mTxtBackground;
+
     private View mDialogViewDetect;
     private Dialog mDialogDetect;
 
@@ -187,6 +200,7 @@ public class NormalTaskActivity extends AppCompatActivity implements View.OnClic
         mBtnNext.setOnClickListener(this);
         mBtnQuit.setOnClickListener(this);
         mBtnAlarm.setOnClickListener(this);
+        mBtnBackground.setOnClickListener(this);
         mInflater = getLayoutInflater();
 
         mExcelRow = getIntent().getIntExtra(TASK_ON_EXCEL_ROW, -1);
@@ -248,6 +262,8 @@ public class NormalTaskActivity extends AppCompatActivity implements View.OnClic
         mEdtLeakagePosition.setOnClickListener(this);
         mEdtRemarks.setText(task.getRemarks());
 
+        float background = (float) SPUtils.get(this, BACKGROUND_VALUE, 0f);
+        mTxtBackground.setText("背景值:"+background);
     }
 
     @Override
@@ -258,6 +274,7 @@ public class NormalTaskActivity extends AppCompatActivity implements View.OnClic
                 break;
             case R.id.btn_save:
 //                saveTask();
+                detectMode = MODE_DETECT;
                 preSaveTask();
                 break;
             case R.id.edt_leakage_position:
@@ -277,6 +294,10 @@ public class NormalTaskActivity extends AppCompatActivity implements View.OnClic
                 break;
             case R.id.btn_alarm:
                 alarm();
+                break;
+            case R.id.btn_background:
+                detectMode = MODE_BACKGROUND;
+                startDetect();
                 break;
         }
     }
@@ -439,18 +460,26 @@ public class NormalTaskActivity extends AppCompatActivity implements View.OnClic
         isDetecting = false;
         mDialogDetect.dismiss();
 
+        if (detectMode == MODE_DETECT){
+            saveDetect();
+        }else {
+            saveBackground();
+        }
+    }
+
+    private void saveBackground(){
+        processDetectValue();
+        mTxtBackground.setText("背景值:"+mDetectMaxValue);
+        SPUtils.put(this, BACKGROUND_VALUE, mDetectMaxValue.floatValue());
+    }
+
+    private void saveDetect(){
         mDetectTime = new SimpleDateFormat("yyyy/MM/dd HH:mm:ss").format(new Date());
         mEdtDetectDate.setText(mDetectTime);
         String detectDevice = (String) SPUtils.get(this, SPUtils.SP_DETECT_DEVICE, "未设置");
         mEdtDetectDevice.setText(detectDevice);
 
-        if (mDetectMaxValue < 1){
-            mDetectMaxValue = 0.0;
-        }else if (mDetectMaxValue > 30000){
-            mDetectMaxValue = 100000.0;
-        }
-        if (BuildConfig.DEBUG)
-            mDetectMaxValue = 1111.0;
+        processDetectValue();
 
         mEdtDetectValue.setText(mDetectMaxValue + "");
         if (mDetectMaxValue >= task.getLeakageThreshold()) {
@@ -462,9 +491,17 @@ public class NormalTaskActivity extends AppCompatActivity implements View.OnClic
         }
 
         isCompleted = true;
-
     }
 
+    private void processDetectValue(){
+        if (mDetectMaxValue < 1){
+            mDetectMaxValue = 0.0;
+        }else if (mDetectMaxValue > 30000){
+            mDetectMaxValue = 100000.0;
+        }
+        if (BuildConfig.DEBUG)
+            mDetectMaxValue = 1111.0;
+    }
 
     private void showDialogList() {
         final AlertDialog.Builder dialogBuilder = new AlertDialog.Builder(this);
@@ -526,10 +563,19 @@ public class NormalTaskActivity extends AppCompatActivity implements View.OnClic
 
 
             dialogBuilder.setView(mDialogViewDetect);
-            dialogBuilder.setTitle("检测任务");
+            if (detectMode == MODE_DETECT){
+                dialogBuilder.setTitle("检测任务");
+            }else {
+                dialogBuilder.setTitle("测量背景值");
+            }
             dialogBuilder.setCancelable(false);
             mDialogDetect = dialogBuilder.show();
         } else {
+            if (detectMode == MODE_DETECT){
+                mDialogDetect.setTitle("检测任务");
+            }else {
+                mDialogDetect.setTitle("测量背景值");
+            }
             mDialogDetect.show();
         }
         showRemainderTime();

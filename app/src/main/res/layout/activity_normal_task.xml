@@ -44,6 +44,16 @@
             android:layout_marginRight="10dp"
             style="@style/my_btn_test_style"/>
 
+        <TextView
+            android:layout_width="0dp"
+            android:layout_height="30dp"
+            android:layout_weight="1.5"
+            android:text="背景值:"
+            android:id="@+id/txt_background"
+            android:textColor="@color/color_black"
+            android:background="@color/translucent_bg"
+            android:gravity="center"/>
+
 
     </LinearLayout>
 
@@ -427,12 +437,21 @@
             android:layout_width="0dp"
             android:layout_height="30dp"
             android:layout_weight="1"
+            android:text="背景"
+            android:id="@+id/btn_background"
+            android:layout_marginLeft="10dp"
+            android:layout_marginRight="10dp"
+            style="@style/my_btn_test_style"/>
+
+        <Button
+            android:layout_width="0dp"
+            android:layout_height="30dp"
+            android:layout_weight="1"
             android:text="报警"
             android:id="@+id/btn_alarm"
             android:layout_marginLeft="10dp"
             android:layout_marginRight="10dp"
             style="@style/my_btn_test_style"/>
-
 
     </LinearLayout>
 
