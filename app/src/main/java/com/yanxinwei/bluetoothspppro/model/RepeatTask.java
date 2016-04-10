@@ -2,8 +2,7 @@ package com.yanxinwei.bluetoothspppro.model;
 
 import android.annotation.SuppressLint;
 
-import com.yanxinwei.bluetoothspppro.util.L;
-
+import java.io.Serializable;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.util.HashMap;
@@ -12,7 +11,7 @@ import java.util.HashMap;
  *
  * Created by yanxinwei on 16/3/19.
  */
-public class RepeatTask {
+public class RepeatTask implements Serializable{
 
     private double detectId;
     private String detectedEquipment;
@@ -67,9 +66,13 @@ public class RepeatTask {
         Class cls = RepeatTask.class;
         MethodParams methodParams = convertMap.get(cellIndex);
         Method method = cls.getMethod(methodParams.getMethodName(),methodParams.getParamsType());
-        L.d("@@@@cellIndex:"+cellIndex+"   methodName:"+methodParams.getMethodName()
-                +"    paramsType:"+methodParams.getParamsType()+"    args:"+args);
+//        L.d("@@@@cellIndex:"+cellIndex+"   methodName:"+methodParams.getMethodName()
+//                +"    paramsType:"+methodParams.getParamsType()+"    args:"+args);
         method.invoke(repeatTask, args);
+    }
+
+    public double getDetectId() {
+        return detectId;
     }
 
     public void setDetectId(double detectId) {

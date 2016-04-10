@@ -14,12 +14,18 @@ public interface AppConstants {
     //复检任务每一行cell数
     int CELL_NUMBER_REPEAT = 19;
 
-    //每一行对应cell的含义
+    //检测任务 每一行对应cell的含义
     int CELL_DETECT_DATE = 9;
     int CELL_DETECT_DEVICE = 10;
     int CELL_DETECT_VALUE = 11;
     int CELL_IS_LEAKAGE = 12;
     int CELL_LEAKAGE_POSITION = 13;
     int CELL_REMARKS = 14;
+
+    //复测任务 每一行对应的cell的含义
+    int CELL_REPEAT_DATE = 15;
+    int CELL_REPEAT_DEVICE = 16;
+    int CELL_REPEAT_VALUE = 17;
+    int CELL_REPEAT_REMARK = 18;
 
 }

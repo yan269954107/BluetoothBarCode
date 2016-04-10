@@ -39,8 +39,10 @@ import com.yanxinwei.bluetoothspppro.util.T;
 import com.yanxinwei.bluetoothspppro.view.NumberTextView;
 
 import org.apache.poi.ss.usermodel.Cell;
+import org.apache.poi.ss.usermodel.CreationHelper;
 import org.apache.poi.ss.usermodel.Row;
 import org.apache.poi.ss.usermodel.Sheet;
+import org.apache.poi.xssf.usermodel.XSSFCellStyle;
 import org.apache.poi.xssf.usermodel.XSSFWorkbook;
 import org.greenrobot.eventbus.EventBus;
 
@@ -48,6 +50,8 @@ import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
+import java.math.BigDecimal;
+import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 
@@ -70,6 +74,8 @@ public class NormalTaskActivity extends AppCompatActivity implements View.OnClic
     private static final int MODE_BACKGROUND = 2;
     private int detectMode = MODE_DETECT;
 
+    private XSSFCellStyle cellStyle1;
+    private XSSFCellStyle cellStyle2;
 
     @Bind(R.id.edt_detected_equipment)
     EditText mEdtDetectedEquipment;
@@ -176,6 +182,8 @@ public class NormalTaskActivity extends AppCompatActivity implements View.OnClic
     protected globalPool mGP = null;
     private Double mDetectMaxValue = -99999.0;
 
+    private float mBackgroundValue = 0;
+
     public static Intent createIntent(Context context, NormalTask normalTask, int row, String taskFilePath) {
         Intent intent = new Intent(context, NormalTaskActivity.class);
         intent.putExtra(NORMAL_TASK, normalTask);
@@ -264,19 +272,19 @@ public class NormalTaskActivity extends AppCompatActivity implements View.OnClic
         mEdtLeakagePosition.setOnClickListener(this);
         mEdtRemarks.setText(task.getRemarks());
 
-        float background = (float) SPUtils.get(this, BACKGROUND_VALUE, 0f);
-        mTxtBackground.setText("背景值:"+background);
+        mBackgroundValue = (float) SPUtils.get(this, BACKGROUND_VALUE, 0f);
+        mTxtBackground.setText("背景值:" + mBackgroundValue);
     }
 
     @Override
     public void onClick(View v) {
         switch (v.getId()) {
             case R.id.btn_test:
+                detectMode = MODE_DETECT;
                 startDetect();
                 break;
             case R.id.btn_save:
 //                saveTask();
-                detectMode = MODE_DETECT;
                 preSaveTask();
                 break;
             case R.id.edt_leakage_position:
@@ -305,7 +313,7 @@ public class NormalTaskActivity extends AppCompatActivity implements View.OnClic
     }
 
     private void alarm() {
-        if (!isCompleted){
+        if (!isCompleted) {
             T.showShort(this, "请先进行检测");
             return;
         }
@@ -318,22 +326,23 @@ public class NormalTaskActivity extends AppCompatActivity implements View.OnClic
 
     /**
      * 跳转任务
-     * @param type  1:前一条   2:下一条
+     *
+     * @param type 1:前一条   2:下一条
      */
-    private void jumpToTask(int type){
+    private void jumpToTask(int type) {
         isShowToast = false;
         int row = mExcelRow - 1;
-        if (type == 1){
+        if (type == 1) {
             row -= 1;
-        }else {
+        } else {
             row += 1;
         }
         int length = mGP.getNormalTasks().size();
-        if (row < 0){
+        if (row < 0) {
             T.showShort(this, "已经是第一条了");
-        }else if (row > length - 1){
+        } else if (row > length - 1) {
             T.showShort(this, "已经是最后一条了");
-        }else {
+        } else {
             NormalTask targetTask = mGP.getNormalTasks().get(row);
             String path = mTaskPath;
             Intent intent = createIntent(this, targetTask, row, path);
@@ -342,7 +351,7 @@ public class NormalTaskActivity extends AppCompatActivity implements View.OnClic
         }
     }
 
-    private void preSaveTask(){
+    private void preSaveTask() {
         if (!isCompleted) {
             T.showShort(this, "请检测后再保存");
             return;
@@ -370,9 +379,16 @@ public class NormalTaskActivity extends AppCompatActivity implements View.OnClic
                         InputStream is = new FileInputStream(path);
                         XSSFWorkbook workbook = new XSSFWorkbook(is);
                         Sheet sheet = workbook.getSheetAt(1);
+
+                        CreationHelper helper = workbook.getCreationHelper();
+                        cellStyle1 = workbook.createCellStyle();
+                        cellStyle1.setDataFormat(helper.createDataFormat().getFormat("yyyy/M/d h:mm"));
+                        cellStyle2 = workbook.createCellStyle();
+                        cellStyle2.setDataFormat(helper.createDataFormat().getFormat("yyyy/M/d"));
+
                         Row row = sheet.getRow(mExcelRow);
 
-                        setCellValue(row, AppConstants.CELL_DETECT_DATE, mEdtDetectDate.getText().toString());
+                        setCellDateValue(row, AppConstants.CELL_DETECT_DATE, mEdtDetectDate.getText().toString(), 1);
 
                         setCellValue(row, AppConstants.CELL_DETECT_DEVICE, mEdtDetectDevice.getText().toString());
 
@@ -409,6 +425,7 @@ public class NormalTaskActivity extends AppCompatActivity implements View.OnClic
                                 normalTask.setDetectDevice(detectDevice);
                                 normalTask.setIsLeakage(task.getIsLeakage());
                                 EventBus.getDefault().post(new TaskCompleteEvent());
+                                jumpToTask(2);
                             }
                         });
 
@@ -451,6 +468,31 @@ public class NormalTaskActivity extends AppCompatActivity implements View.OnClic
         cell.setCellValue(value);
     }
 
+    /**
+     * @param row
+     * @param cellNumber
+     * @param value
+     * @param type       1:yyyy/M/d h:mm   2:yyyy/M/d
+     */
+    private void setCellDateValue(Row row, int cellNumber, String value, int type) {
+        Cell cell = getCell(row, cellNumber);
+        Date date;
+        try {
+            if (type == 1) {
+                date = ImportTaskActivity.date1.parse(value);
+                cell.setCellValue(date);
+                cell.setCellStyle(cellStyle1);
+            } else {
+                date = ImportTaskActivity.date2.parse(value);
+                cell.setCellValue(date);
+                cell.setCellStyle(cellStyle2);
+            }
+        } catch (ParseException e) {
+            e.printStackTrace();
+            cell.setCellValue(value);
+        }
+    }
+
     private Cell getCell(Row row, int cellNumber) {
         Cell cell = row.getCell(cellNumber);
         if (null == cell) {
@@ -463,27 +505,28 @@ public class NormalTaskActivity extends AppCompatActivity implements View.OnClic
         isDetecting = false;
         mDialogDetect.dismiss();
 
-        if (detectMode == MODE_DETECT){
+        if (detectMode == MODE_DETECT) {
             saveDetect();
-        }else {
+        } else {
             saveBackground();
         }
     }
 
-    private void saveBackground(){
+    private void saveBackground() {
         processDetectValue();
-        mTxtBackground.setText("背景值:"+mDetectMaxValue);
+        mBackgroundValue = mDetectMaxValue.floatValue();
+        mTxtBackground.setText("背景值:" + mDetectMaxValue);
         SPUtils.put(this, BACKGROUND_VALUE, mDetectMaxValue.floatValue());
     }
 
-    private void saveDetect(){
+    private void saveDetect() {
         mDetectTime = new SimpleDateFormat("yyyy/MM/dd HH:mm:ss").format(new Date());
         mEdtDetectDate.setText(mDetectTime);
         String detectDevice = (String) SPUtils.get(this, SPUtils.SP_DETECT_DEVICE, "未设置");
         mEdtDetectDevice.setText(detectDevice);
 
+        mDetectMaxValue = mDetectMaxValue - mBackgroundValue;
         processDetectValue();
-
         mEdtDetectValue.setText(mDetectMaxValue + "");
         if (mDetectMaxValue >= task.getLeakageThreshold()) {
             mEdtIsLeakage.setText("是");
@@ -496,14 +539,17 @@ public class NormalTaskActivity extends AppCompatActivity implements View.OnClic
         isCompleted = true;
     }
 
-    private void processDetectValue(){
-        if (mDetectMaxValue < 1){
+    private void processDetectValue() {
+        if (mDetectMaxValue < 1) {
             mDetectMaxValue = 0.0;
-        }else if (mDetectMaxValue > 30000){
+        } else if (mDetectMaxValue > 30000) {
             mDetectMaxValue = 100000.0;
         }
         if (BuildConfig.DEBUG)
-            mDetectMaxValue = 1111.0;
+            mDetectMaxValue = 11.11;
+
+        BigDecimal bigDecimal = new BigDecimal(mDetectMaxValue);
+        mDetectMaxValue = bigDecimal.setScale(1, BigDecimal.ROUND_HALF_UP).doubleValue();
     }
 
     private void showDialogList() {
@@ -525,7 +571,7 @@ public class NormalTaskActivity extends AppCompatActivity implements View.OnClic
                     NormalTask normalTask = mGP.getNormalTasks().get(mExcelRow - 1);
                     normalTask.setLeakagePosition(p);
                     dialog.dismiss();
-                    if (isCompleted){
+                    if (isCompleted) {
                         jumpToTask(2);
                     }
                 }
@@ -566,17 +612,17 @@ public class NormalTaskActivity extends AppCompatActivity implements View.OnClic
 
 
             dialogBuilder.setView(mDialogViewDetect);
-            if (detectMode == MODE_DETECT){
+            if (detectMode == MODE_DETECT) {
                 dialogBuilder.setTitle("检测任务");
-            }else {
+            } else {
                 dialogBuilder.setTitle("测量背景值");
             }
             dialogBuilder.setCancelable(false);
             mDialogDetect = dialogBuilder.show();
         } else {
-            if (detectMode == MODE_DETECT){
+            if (detectMode == MODE_DETECT) {
                 mDialogDetect.setTitle("检测任务");
-            }else {
+            } else {
                 mDialogDetect.setTitle("测量背景值");
             }
             mDialogDetect.show();
@@ -669,7 +715,7 @@ public class NormalTaskActivity extends AppCompatActivity implements View.OnClic
         public void onPostExecute(Integer result) {
             if (CONNECT_LOST == result) //通信连接丢失
                 T.showShort(NormalTaskActivity.this, "通信连接丢失请重新连接设备");
-            else{
+            else {
                 if (isShowToast)
                     T.showShort(NormalTaskActivity.this, "接收数据终止");
             }

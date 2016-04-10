@@ -74,7 +74,7 @@
             <TextView
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:text="蓝牙连接"
+                android:text="仪器连接"
                 android:gravity="center"
                 android:textSize="26sp"
                 android:layout_marginTop="-15dp"
@@ -144,7 +144,7 @@
             <TextView
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:text="控制设备"
+                android:text="数据交互"
                 android:gravity="center"
                 android:textSize="26sp"
                 android:id="@+id/textView4"

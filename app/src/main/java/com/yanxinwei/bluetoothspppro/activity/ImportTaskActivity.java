@@ -43,8 +43,8 @@ import butterknife.ButterKnife;
 
 public class ImportTaskActivity extends BaseActivity {
 
-    private static final SimpleDateFormat date1 = new SimpleDateFormat("yyyy/M/d h:mm");
-    private static final SimpleDateFormat date2 = new SimpleDateFormat("yyyy/M/d");
+    public static final SimpleDateFormat date1 = new SimpleDateFormat("yyyy/M/d h:mm");
+    public static final SimpleDateFormat date2 = new SimpleDateFormat("yyyy/M/d");
 
     public static final String TASK_PATH = "taskPath";
     //1:检测任务  2:复检任务
@@ -125,9 +125,9 @@ public class ImportTaskActivity extends BaseActivity {
                    intent = NormalTaskActivity.createIntent(ImportTaskActivity.this,
                            (NormalTask) mAdapter.getItem(position), position, taskPath);
                 }else if (taskType == 2){
-
+                    intent = RepeatTaskActivity.createIntent(ImportTaskActivity.this,
+                            (RepeatTask) mAdapter.getItem(position), position, taskPath);
                 }
-
                 startActivityForResult(intent, REQUEST_CODE);
             }
         });
@@ -370,7 +370,15 @@ public class ImportTaskActivity extends BaseActivity {
                 }
             }
         }else if (taskType == 2){
-
+            for (RepeatTask task : mRepeatTasks){
+                taskNum ++;
+                if (!TextUtils.isEmpty(task.getRepeatDate())){
+                    taskTested ++;
+                    if (task.getRepeatValue() > task.getLeakageThreshold()){
+                        taskLeakage ++;
+                    }
+                }
+            }
         }
         txtTaskNum.setText("任务点数:"+taskNum);
         txtTaskTested.setText("已测点数:"+taskTested);
