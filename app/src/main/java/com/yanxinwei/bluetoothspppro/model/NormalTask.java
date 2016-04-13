@@ -196,12 +196,26 @@ public class NormalTask implements Serializable{
     };
 
     public static final void convertField(NormalTask normalTask, int cellIndex, Object args) throws NoSuchMethodException, InvocationTargetException, IllegalAccessException {
-        Class cls = NormalTask.class;
-        MethodParams methodParams = convertMap.get(cellIndex);
-        Method method = cls.getMethod(methodParams.getMethodName(),methodParams.getParamsType());
-//        L.d("@@@@cellIndex:"+cellIndex+"   methodName:"+methodParams.getMethodName()
-//                +"    paramsType:"+methodParams.getParamsType()+"    args:"+args);
-        method.invoke(normalTask, args);
+        try {
+            Class cls = NormalTask.class;
+            MethodParams methodParams = convertMap.get(cellIndex);
+            Method method = cls.getMethod(methodParams.getMethodName(),methodParams.getParamsType());
+//            L.d("@@@@cellIndex:"+cellIndex+"   methodName:"+methodParams.getMethodName()
+//                    +"    paramsType:"+methodParams.getParamsType()+"    args:"+args);
+            method.invoke(normalTask, args);
+        }catch (Exception e){
+            try {
+                Class cls = NormalTask.class;
+                MethodParams methodParams = convertMap.get(cellIndex);
+                Method method = cls.getMethod(methodParams.getMethodName(),methodParams.getParamsType());
+//            L.d("@@@@cellIndex:"+cellIndex+"   methodName:"+methodParams.getMethodName()
+//                    +"    paramsType:"+methodParams.getParamsType()+"    args:"+args);
+                double d = 0.0;
+                method.invoke(normalTask, d);
+            }catch (Exception e1){
+
+            }
+        }
     }
 
     @Override
