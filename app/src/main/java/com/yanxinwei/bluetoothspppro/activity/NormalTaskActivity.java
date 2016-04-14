@@ -546,7 +546,7 @@ public class NormalTaskActivity extends AppCompatActivity implements View.OnClic
             mDetectMaxValue = 100000.0;
         }
         if (BuildConfig.DEBUG)
-            mDetectMaxValue = 11.11;
+            mDetectMaxValue = 11111.11;
 
         BigDecimal bigDecimal = new BigDecimal(mDetectMaxValue);
         mDetectMaxValue = bigDecimal.setScale(1, BigDecimal.ROUND_HALF_UP).doubleValue();
@@ -572,7 +572,7 @@ public class NormalTaskActivity extends AppCompatActivity implements View.OnClic
                     normalTask.setLeakagePosition(p);
                     dialog.dismiss();
                     if (isCompleted) {
-                        jumpToTask(2);
+                        saveTask();
                     }
                 }
             }
