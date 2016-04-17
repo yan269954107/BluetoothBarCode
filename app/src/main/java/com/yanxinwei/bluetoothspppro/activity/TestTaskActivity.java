@@ -58,6 +58,11 @@ public class TestTaskActivity extends BaseActivity {
         });
 
         taskType = (int) SPUtils.get(this, TASK_TYPE_PRE, 1);
+        if (taskType == 1) {
+            setActionbarTitle("检测任务");
+        }else {
+            setActionbarTitle("复检任务");
+        }
 
         loadData();
     }

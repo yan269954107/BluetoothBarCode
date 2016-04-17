@@ -63,12 +63,27 @@ public class RepeatTask implements Serializable{
     };
 
     public static final void convertField(RepeatTask repeatTask, int cellIndex, Object args) throws NoSuchMethodException, InvocationTargetException, IllegalAccessException {
-        Class cls = RepeatTask.class;
-        MethodParams methodParams = convertMap.get(cellIndex);
-        Method method = cls.getMethod(methodParams.getMethodName(),methodParams.getParamsType());
+        try {
+            Class cls = RepeatTask.class;
+            MethodParams methodParams = convertMap.get(cellIndex);
+            Method method = cls.getMethod(methodParams.getMethodName(),methodParams.getParamsType());
 //        L.d("@@@@cellIndex:"+cellIndex+"   methodName:"+methodParams.getMethodName()
 //                +"    paramsType:"+methodParams.getParamsType()+"    args:"+args);
-        method.invoke(repeatTask, args);
+            method.invoke(repeatTask, args);
+        }catch (Exception e) {
+            try {
+                Class cls = NormalTask.class;
+                MethodParams methodParams = convertMap.get(cellIndex);
+                Method method = cls.getMethod(methodParams.getMethodName(),methodParams.getParamsType());
+//            L.d("@@@@cellIndex:"+cellIndex+"   methodName:"+methodParams.getMethodName()
+//                    +"    paramsType:"+methodParams.getParamsType()+"    args:"+args);
+                double d = 0.0;
+                method.invoke(repeatTask, d);
+            }catch (Exception e1){
+
+            }
+        }
+
     }
 
     public double getDetectId() {
