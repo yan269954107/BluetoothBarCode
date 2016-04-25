@@ -463,7 +463,7 @@ public class RepeatTaskActivity extends AppCompatActivity implements View.OnClic
 
     private void saveDetect() {
         mDetectTime = ImportTaskActivity.date1.format(new Date());
-        mEdtDetectDate.setText(mDetectTime);
+        mEdtRepeatDate.setText(mDetectTime);
         String detectDevice = (String) SPUtils.get(this, SPUtils.SP_DETECT_DEVICE, "未设置");
         mEdtRepeatDevice.setText(detectDevice);
 
