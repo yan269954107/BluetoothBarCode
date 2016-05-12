@@ -18,6 +18,17 @@ android {
             proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.pro'
         }
     }
+
+    productFlavors {
+        platform {
+            versionCode 1
+            versionName "1.0"
+        }
+        own {
+            versionCode 1
+            versionName "1.0"
+        }
+    }
 }
 
 dependencies {

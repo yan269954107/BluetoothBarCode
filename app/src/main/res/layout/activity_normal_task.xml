@@ -169,6 +169,28 @@
                     android:layout_width="0dp"
                     android:layout_height="wrap_content"
                     android:layout_weight="1"
+                    android:text="扩展号"
+                    android:gravity="right"
+                    />
+
+                <EditText
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:id="@+id/edt_expand_number"
+                    android:layout_weight="3"
+                    android:focusable="false"/>
+            </LinearLayout>
+
+            <LinearLayout
+                android:orientation="horizontal"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_gravity="center_horizontal">
+
+                <TextView
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
                     android:text="位置描述"
                     android:gravity="right"
                     />
@@ -235,6 +257,28 @@
                     android:layout_width="0dp"
                     android:layout_height="wrap_content"
                     android:layout_weight="1"
+                    android:text="尺寸"
+                    android:gravity="right"
+                    />
+
+                <EditText
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:id="@+id/edt_size"
+                    android:layout_weight="3"
+                    android:focusable="false"/>
+            </LinearLayout>
+
+            <LinearLayout
+                android:orientation="horizontal"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_gravity="center_horizontal">
+
+                <TextView
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
                     android:text="泄露阈值"
                     android:gravity="right"
                     />
@@ -279,14 +323,14 @@
                     android:layout_width="0dp"
                     android:layout_height="wrap_content"
                     android:layout_weight="1"
-                    android:text="检测日期"
+                    android:text="检测人员"
                     android:gravity="right"
                     />
 
                 <EditText
                     android:layout_width="0dp"
                     android:layout_height="wrap_content"
-                    android:id="@+id/edt_detect_date"
+                    android:id="@+id/edt_detect_personal"
                     android:layout_weight="3"
                     android:focusable="false"/>
             </LinearLayout>
@@ -309,6 +353,28 @@
                     android:layout_width="0dp"
                     android:layout_height="wrap_content"
                     android:id="@+id/edt_detect_device"
+                    android:layout_weight="3"
+                    android:focusable="false"/>
+            </LinearLayout>
+
+            <LinearLayout
+                android:orientation="horizontal"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_gravity="center_horizontal">
+
+                <TextView
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:text="检测日期"
+                    android:gravity="right"
+                    />
+
+                <EditText
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:id="@+id/edt_detect_date"
                     android:layout_weight="3"
                     android:focusable="false"/>
             </LinearLayout>

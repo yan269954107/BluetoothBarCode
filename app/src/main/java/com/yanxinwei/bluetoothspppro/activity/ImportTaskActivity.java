@@ -292,7 +292,7 @@ public class ImportTaskActivity extends BaseActivity {
         Cell cell;
         InputStream is = new FileInputStream(path);
         XSSFWorkbook workbook = new XSSFWorkbook(is);
-        Sheet sheet = workbook.getSheetAt(1);
+        Sheet sheet = workbook.getSheetAt(0);
         int rowCount = sheet.getPhysicalNumberOfRows();
 //                    SDLog.appendLog("rowCount:"+rowCount);
         for (int r = 1; r < rowCount; r++){
