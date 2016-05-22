@@ -255,8 +255,8 @@ public class NormalTaskActivity extends AppCompatActivity implements View.OnClic
         mEdtAddress.setText(task.getAddress());
         mEdtUnitType.setText(task.getUnitType());
         mEdtUnitSubType.setText(task.getUnitSubType());
-        mEdtLeakageThreshold.setText(task.getLeakageThreshold() + "");
-        mEdtMinTime.setText(task.getDetectMiniTime() + "");
+        mEdtLeakageThreshold.setText((int)task.getLeakageThreshold() + "");
+        mEdtMinTime.setText((int)task.getDetectMiniTime() + "");
         mDetectMinTime = (int) task.getDetectMiniTime();
         if (BuildConfig.DEBUG)
             mDetectMinTime = 3;

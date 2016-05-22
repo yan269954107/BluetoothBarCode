@@ -193,6 +193,9 @@ public class NormalTaskActivity extends AppCompatActivity implements View.OnClic
 
     private float mBackgroundValue = 0;
 
+    private final static int sRequestCode = 10001;
+    private receiveTask mTask;
+
     public static Intent createIntent(Context context, NormalTask normalTask, int row, String taskFilePath) {
         Intent intent = new Intent(context, NormalTaskActivity.class);
         intent.putExtra(NORMAL_TASK, normalTask);
@@ -233,6 +236,10 @@ public class NormalTaskActivity extends AppCompatActivity implements View.OnClic
     @Override
     protected void onDestroy() {
         super.onDestroy();
+        clearSource();
+    }
+
+    private void clearSource() {
         mbThreadStop = true;
         if (null != mBSC)
             mBSC.killReceiveData_StopFlg();
@@ -264,8 +271,8 @@ public class NormalTaskActivity extends AppCompatActivity implements View.OnClic
         mEdtAddress.setText(task.getAddress());
         mEdtUnitType.setText(task.getUnitType());
         mEdtUnitSubType.setText(task.getUnitSubType());
-        mEdtLeakageThreshold.setText(task.getLeakageThreshold() + "");
-        mEdtMinTime.setText(task.getDetectMiniTime() + "");
+        mEdtLeakageThreshold.setText((int)task.getLeakageThreshold() + "");
+        mEdtMinTime.setText((int)task.getDetectMiniTime() + "");
         mDetectMinTime = (int) task.getDetectMiniTime();
         if (BuildConfig.DEBUG)
             mDetectMinTime = 3;
@@ -282,7 +289,7 @@ public class NormalTaskActivity extends AppCompatActivity implements View.OnClic
         mEdtRemarks.setText(task.getRemarks());
 
         mEdtExpandNumber.setText(task.getExpandNumber());
-        mEdtSize.setText(task.getSize()+"");
+        mEdtSize.setText((int)task.getSize()+"");
         mEdtDetectPersonal.setText(task.getDetectPersonal());
 
         mBackgroundValue = (float) SPUtils.get(this, BACKGROUND_VALUE, 0f);
@@ -319,9 +326,26 @@ public class NormalTaskActivity extends AppCompatActivity implements View.OnClic
                 alarm();
                 break;
             case R.id.btn_background:
-                detectMode = MODE_BACKGROUND;
-                startDetect();
+//                detectMode = MODE_BACKGROUND;
+//                startDetect();
+                clearSource();
+                Intent intent = new Intent(this, BackgroundActivity.class);
+                startActivityForResult(intent, sRequestCode);
                 break;
+        }
+    }
+
+    @Override
+    protected void onActivityResult(int requestCode, int resultCode, Intent data) {
+        if (requestCode == sRequestCode) {
+            if (resultCode == RESULT_OK) {
+                mBackgroundValue = data.getFloatExtra(BackgroundActivity.BACK_AVERAGE_VALUE_RESULT, 0.0f);
+                mTxtBackground.setText("背景值:" + mBackgroundValue);
+                if (mTask != null) {
+                    mTask = new receiveTask();
+                    mTask.executeOnExecutor(BaseCommActivity.FULL_TASK_EXECUTOR);
+                }
+            }
         }
     }
 
@@ -605,8 +629,10 @@ public class NormalTaskActivity extends AppCompatActivity implements View.OnClic
         initIO_Mode();
         setEndFlg();
         //初始化结束，启动接收线程
-        new receiveTask()
-                .executeOnExecutor(BaseCommActivity.FULL_TASK_EXECUTOR);
+        if (mTask == null) {
+            mTask = new receiveTask();
+            mTask.executeOnExecutor(BaseCommActivity.FULL_TASK_EXECUTOR);
+        }
         showDetectDialog();
     }
 

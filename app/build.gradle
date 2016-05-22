@@ -5,7 +5,6 @@ android {
     buildToolsVersion "23.0.2"
 
     defaultConfig {
-        applicationId "com.yanxinwei.bluetoothspppro"
         minSdkVersion 15
         targetSdkVersion 23
         versionCode 1
@@ -21,10 +20,12 @@ android {
 
     productFlavors {
         platform {
+            applicationId "com.yanxinwei.bluetoothspppro"
             versionCode 1
             versionName "1.0"
         }
         own {
+            applicationId "com.yanxinwei.bluetoothspppro.own"
             versionCode 1
             versionName "1.0"
         }

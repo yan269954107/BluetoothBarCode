@@ -70,8 +70,13 @@
         </activity>
         <activity android:name=".activity.RepeatTaskActivity">
         </activity>
-        <activity android:name=".activity.TestTaskActivity"
-                  android:label="检测任务">
+        <activity
+            android:name=".activity.TestTaskActivity"
+            android:label="检测任务">
+        </activity>
+        <activity
+            android:name=".activity.BackgroundActivity"
+            android:label="背景值检测">
         </activity>
     </application>
 
