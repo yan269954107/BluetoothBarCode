@@ -16,6 +16,8 @@ import java.io.InputStreamReader;
  */
 public class F {
 
+    public static final String P = "com.yanxinwei.bluetoothspppro";
+
     public static final String TEST_TASK_DIR = SDLog.SD_PATH.concat("/检测任务");
     public static final String REPEAT_TASK_DIR = SDLog.SD_PATH.concat("/复检任务");
 

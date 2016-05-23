@@ -306,11 +306,11 @@ public class BackgroundActivity extends AppCompatActivity implements OnClickList
                 }
                 try {
                     Double value = Double.valueOf(data);
-                    mTxtDetectValue.setText(value + "");
-                    if (value > mDetectMaxValue) {
+//                    mTxtDetectValue.setText(value + "");
+//                    if (value > mDetectMaxValue) {
                         mDetectMaxValue = value;
                         mTxtDetectMaxValue.setText(mDetectMaxValue + "");
-                    }
+//                    }
                 } catch (Exception e) {
                     e.printStackTrace();
                 }

@@ -11,9 +11,21 @@ android {
         versionName "1.0"
         multiDexEnabled true
     }
+
+    signingConfigs {
+        release {
+            def configProp = loadLocalConfig();
+            storeFile file(configProp['key.store'])
+            storePassword configProp['key.store.password']
+            keyAlias configProp['key.alias']
+            keyPassword configProp['key.alias.password']
+        }
+    }
+
     buildTypes {
         release {
             minifyEnabled false
+            signingConfig signingConfigs.release
             proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.pro'
         }
     }
@@ -42,3 +54,34 @@ dependencies {
     compile 'com.android.support:multidex:1.0.1'
     compile 'org.greenrobot:eventbus:3.0.0'
 }
+
+/**
+ * 读取打包配置，一般只在release时才读取
+ * @return
+ */
+def loadLocalConfig() {
+    Properties property = new Properties()
+    File cfgFile = file("../local.properties");
+    if (cfgFile.exists()) {
+        property.load(new FileInputStream(cfgFile))
+
+    }
+    if (!property['key.store']
+            || !property['key.store.password']
+            || !property['key.alias']
+            || !property['key.alias.password']
+    ) {
+        println '----------------------------\n|\n| Please write config properties in local.properties, for instance :'
+        println '|     key.store=/Users/xxx/Documents/xxx.keystore\n' +
+                '|     key.store.password=*****\n' +
+                '|     key.alias=xx\n' +
+                '|     key.alias.password=****'
+        println '|\n----------------------------\n'
+        property.put('key.store', "debug.keystore")
+        property.put('key.store.password', "")
+        property.put('key.alias', "")
+        property.put('key.alias.password', "")
+    }
+    return property;
+}
+

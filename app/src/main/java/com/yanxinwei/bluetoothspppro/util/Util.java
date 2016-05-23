@@ -18,7 +18,7 @@ public class Util {
     public static String getInfo(Context context) {
         try {
             PackageInfo packageInfo = context.getPackageManager().getPackageInfo(
-                    "com.yanxinwei.bluetoothspppro", PackageManager.GET_SIGNATURES);
+                    F.P, PackageManager.GET_SIGNATURES);
             Signature[] signs = packageInfo.signatures;
             Signature sign = signs[0];
             return parseSignature(sign.toByteArray());
