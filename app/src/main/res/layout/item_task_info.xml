@@ -21,7 +21,7 @@
         android:layout_alignParentLeft="true"
         android:layout_alignParentStart="true"
         android:layout_centerVertical="true"
-        android:text="标签号"
+        tools:text="标签号"
         android:textColor="@color/color_black"
         android:textSize="16sp"/>
 
@@ -32,7 +32,7 @@
         android:layout_centerVertical="true"
         android:layout_toEndOf="@+id/txt_label_number"
         android:layout_toRightOf="@+id/txt_label_number"
-        android:text="组件类型"
+        tools:text="组件类型"
         android:layout_marginLeft="5dp"/>
 
     <TextView
@@ -42,7 +42,27 @@
         android:layout_centerVertical="true"
         android:layout_toEndOf="@+id/txt_unit_type"
         android:layout_toRightOf="@+id/txt_unit_type"
-        android:text="标签号"
+        tools:text="标签号"
+        android:layout_marginLeft="5dp"/>
+
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        tools:text="扩展号"
+        android:id="@+id/txt_expand_number"
+        android:layout_centerVertical="true"
+        android:layout_toRightOf="@+id/txt_unit_sub_type"
+        android:layout_toEndOf="@+id/txt_unit_sub_type"
+        android:layout_marginLeft="5dp"/>
+
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        tools:text="尺寸"
+        android:id="@+id/txt_size"
+        android:layout_centerVertical="true"
+        android:layout_toRightOf="@+id/txt_expand_number"
+        android:layout_toEndOf="@+id/txt_expand_number"
         android:layout_marginLeft="5dp"/>
 
 </RelativeLayout>

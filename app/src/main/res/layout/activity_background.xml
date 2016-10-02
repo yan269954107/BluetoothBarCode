@@ -51,7 +51,7 @@
         <TextView
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="背景值检测点1:"
+            android:text="背景值检测点2:"
             android:layout_gravity="center"/>
 
         <TextView
@@ -81,7 +81,7 @@
         <TextView
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="背景值检测点1:"
+            android:text="背景值检测点3:"
             android:layout_gravity="center"/>
 
         <TextView
@@ -111,7 +111,7 @@
         <TextView
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="背景值检测点1:"
+            android:text="背景值检测点4:"
             android:layout_gravity="center"/>
 
         <TextView
@@ -141,7 +141,7 @@
         <TextView
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="背景值检测点1:"
+            android:text="背景值检测点5:"
             android:layout_gravity="center"/>
 
         <TextView

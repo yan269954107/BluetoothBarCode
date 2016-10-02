@@ -43,6 +43,13 @@ public class Util {
         return null;
     }
 
-
+    public static String bytesToString(byte[] bytes) {
+        StringBuilder sb = new StringBuilder();
+        for (byte b : bytes) {
+            sb.append(b);
+            sb.append(",");
+        }
+        return sb.toString();
+    }
 
 }

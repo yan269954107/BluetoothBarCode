@@ -21,6 +21,7 @@ import com.yanxinwei.bluetoothspppro.event.TaskCompleteEvent;
 import com.yanxinwei.bluetoothspppro.model.NormalTask;
 import com.yanxinwei.bluetoothspppro.model.RepeatTask;
 import com.yanxinwei.bluetoothspppro.util.F;
+import com.yanxinwei.bluetoothspppro.util.MyConstants;
 
 import org.apache.poi.hssf.usermodel.HSSFDateUtil;
 import org.apache.poi.ss.usermodel.Cell;
@@ -292,14 +293,14 @@ public class ImportTaskActivity extends BaseActivity {
         Cell cell;
         InputStream is = new FileInputStream(path);
         XSSFWorkbook workbook = new XSSFWorkbook(is);
-        Sheet sheet = workbook.getSheetAt(0);
+        Sheet sheet = workbook.getSheetAt(MyConstants.WORKSHEET_INDEX);
         int rowCount = sheet.getPhysicalNumberOfRows();
 //                    SDLog.appendLog("rowCount:"+rowCount);
         for (int r = 1; r < rowCount; r++){
             row = sheet.getRow(r);
 //                        int cellCount = row.getPhysicalNumberOfCells();
             NormalTask normalTask = new NormalTask();
-            for (int c = 0; c < AppConstants.CELL_NUMBER_NORMAL; c++){
+            for (int c = 0; c < MyConstants.CELL_NUMBER_NORMAL; c++){
                 cell = row.getCell(c);
                 try {
                     NormalTask.convertField(normalTask, c, convertCellValue(cell));

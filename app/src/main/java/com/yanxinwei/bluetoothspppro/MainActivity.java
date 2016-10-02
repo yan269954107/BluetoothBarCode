@@ -20,11 +20,12 @@ import com.yanxinwei.bluetoothspppro.activity.SettingActivity;
 import com.yanxinwei.bluetoothspppro.activity.TestTaskActivity;
 import com.yanxinwei.bluetoothspppro.core.BaseActivity;
 import com.yanxinwei.bluetoothspppro.util.F;
+import com.yanxinwei.bluetoothspppro.util.L;
+import com.yanxinwei.bluetoothspppro.util.MyLog;
 import com.yanxinwei.bluetoothspppro.util.SDLog;
 import com.yanxinwei.bluetoothspppro.util.SPUtils;
 import com.yanxinwei.bluetoothspppro.util.T;
 import com.yanxinwei.bluetoothspppro.util.Test;
-import com.yanxinwei.bluetoothspppro.util.Util;
 
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -89,17 +90,17 @@ public class MainActivity extends BaseActivity implements View.OnClickListener {
                 Test.settime(date,second);
                 break;
         }
-        if (!BuildConfig.DEBUG && !String.valueOf(Test.P).equals(Util.getInfo(this))){
+//        if (!BuildConfig.DEBUG && !String.valueOf(Test.P).equals(Util.getInfo(this))){
 //            L.d("@@@@"+String.valueOf(Test.P)+"@");
 //            L.d("@@@@"+Util.getInfo(this));
 //            L.d("@@@@finish0");
-            finish();
-        }
+//            finish();
+//        }
 
         boolean isCopy = (boolean) SPUtils.get(this, "IS_COPY", false);
         if (isCopy){
             String c = F.readerSign(this);
-//            L.d("@@@@"+c);
+            L.d("@@@@"+c);
             if (c == null || !c.equals("081efe81f3bee0d92457ae1f04f662ea")){
                 checkSDCard();
             }
@@ -107,6 +108,7 @@ public class MainActivity extends BaseActivity implements View.OnClickListener {
             checkSDCard();
         }
         F.createFolder();
+        MyLog.d("@@@@onCreate");
     }
 
 
@@ -114,9 +116,9 @@ public class MainActivity extends BaseActivity implements View.OnClickListener {
     private void checkSDCard(){
         String p = SDLog.SD_PATH.concat("/").concat("sign.csr");
         String c = F.readerSign(p);
-//        L.d("@@@@"+c);
+        L.d("@@@@"+c);
         if (c == null || !c.equals("081efe81f3bee0d92457ae1f04f662ea")){
-//            L.d("@@@@finish1");
+            L.d("@@@@finish1");
             finish();
         } else {
             F.copyFile(this, p);

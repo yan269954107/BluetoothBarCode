@@ -6,8 +6,8 @@ package com.yanxinwei.bluetoothspppro.core;
  */
 public interface AppConstants {
 
-    String[] leakagePosition = {"轴封","阀盖","阀杆","阀芯","法兰","丝堵","空冷丝堵","管帽","丝扣",
-            "活接","开口阀/开口管线","泄压装置"};
+    String[] leakagePosition = {"轴封","阀盖法兰","阀杆","阀芯","法兰","丝堵","空冷丝堵","管帽","丝扣",
+            "活接","开口管线","安全阀"};
 
     //检测任务每一行cell数
     int CELL_NUMBER_NORMAL = 15;
