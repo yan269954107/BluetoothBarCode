@@ -8,10 +8,9 @@ import java.lang.reflect.Method;
 import java.util.HashMap;
 
 /**
- *
  * Created by yanxinwei on 16/3/16.
  */
-public class NormalTask implements Serializable{
+public class NormalTask implements Serializable {
 
     private String detectedEquipment;
     private String area;
@@ -174,45 +173,95 @@ public class NormalTask implements Serializable{
     }
 
     @SuppressLint("UseSparseArrays")
-    public static final HashMap<Integer,MethodParams> convertMap = new HashMap<Integer,MethodParams>(){
+    public static final HashMap<Integer, MethodParams> convertMap = new HashMap<Integer, MethodParams>() {
         {
-            put(0,  new MethodParams("setDetectedEquipment",String.class));
-            put(1,  new MethodParams("setArea",String.class));
-            put(2,  new MethodParams("setDetectedDevice",String.class));
-            put(3,  new MethodParams("setLabelNumber",String.class));
-            put(4,  new MethodParams("setAddress",String.class));
-            put(5,  new MethodParams("setUnitType",String.class));
-            put(6,  new MethodParams("setUnitSubType",String.class));
-            put(7,  new MethodParams("setLeakageThreshold",double.class));
-            put(8,  new MethodParams("setDetectMiniTime",double.class));
-            put(9,  new MethodParams("setDetectDate",String.class));
-            put(10, new MethodParams("setDetectDevice",String.class));
-            put(11, new MethodParams("setDetectValue",double.class));
-            put(12, new MethodParams("setIsLeakage",double.class));
-            put(13, new MethodParams("setLeakagePosition",String.class));
-            put(14, new MethodParams("setRemarks",String.class));
+            put(0, new MethodParams("setDetectedEquipment", String.class));
+            put(1, new MethodParams("setArea", String.class));
+            put(2, new MethodParams("setDetectedDevice", String.class));
+            put(3, new MethodParams("setLabelNumber", String.class));
+            put(4, new MethodParams("setAddress", String.class));
+            put(5, new MethodParams("setUnitType", String.class));
+            put(6, new MethodParams("setUnitSubType", String.class));
+            put(7, new MethodParams("setLeakageThreshold", double.class));
+            put(8, new MethodParams("setDetectMiniTime", double.class));
+            put(9, new MethodParams("setDetectDate", String.class));
+            put(10, new MethodParams("setDetectDevice", String.class));
+            put(11, new MethodParams("setDetectValue", double.class));
+            put(12, new MethodParams("setIsLeakage", double.class));
+            put(13, new MethodParams("setLeakagePosition", String.class));
+            put(14, new MethodParams("setRemarks", String.class));
 
         }
     };
+
+    public void setData(String columnName, String data) {
+        switch (columnName) {
+            case "A":
+                setDetectedEquipment(data);
+                break;
+            case "B":
+                setArea(data);
+                break;
+            case "C":
+                setDetectedDevice(data);
+                break;
+            case "D":
+                setLabelNumber(data);
+                break;
+            case "E":
+                setAddress(data);
+                break;
+            case "F":
+                setUnitType(data);
+                break;
+            case "G":
+                setUnitSubType(data);
+                break;
+            case "H":
+                setLeakageThreshold(Double.parseDouble(data));
+                break;
+            case "I":
+                setDetectMiniTime(Double.parseDouble(data));
+                break;
+            case "J":
+                setDetectDate(data);
+                break;
+            case "K":
+                setDetectDevice(data);
+                break;
+            case "L":
+                setDetectValue(Double.parseDouble(data));
+                break;
+            case "M":
+                setIsLeakage(Double.parseDouble(data));
+                break;
+            case "N":
+                setLeakagePosition(data);
+                break;
+            case "O":
+                setRemarks(data);
+                break;
+        }
+    }
 
     public static final void convertField(NormalTask normalTask, int cellIndex, Object args) throws NoSuchMethodException, InvocationTargetException, IllegalAccessException {
         try {
             Class cls = NormalTask.class;
             MethodParams methodParams = convertMap.get(cellIndex);
-            Method method = cls.getMethod(methodParams.getMethodName(),methodParams.getParamsType());
+            Method method = cls.getMethod(methodParams.getMethodName(), methodParams.getParamsType());
 //            L.d("@@@@cellIndex:"+cellIndex+"   methodName:"+methodParams.getMethodName()
 //                    +"    paramsType:"+methodParams.getParamsType()+"    args:"+args);
             method.invoke(normalTask, args);
-        }catch (Exception e){
+        } catch (Exception e) {
             try {
                 Class cls = NormalTask.class;
                 MethodParams methodParams = convertMap.get(cellIndex);
-                Method method = cls.getMethod(methodParams.getMethodName(),methodParams.getParamsType());
+                Method method = cls.getMethod(methodParams.getMethodName(), methodParams.getParamsType());
 //            L.d("@@@@cellIndex:"+cellIndex+"   methodName:"+methodParams.getMethodName()
 //                    +"    paramsType:"+methodParams.getParamsType()+"    args:"+args);
                 double d = 0.0;
                 method.invoke(normalTask, d);
-            }catch (Exception e1){
+            } catch (Exception e1) {
 
             }
         }

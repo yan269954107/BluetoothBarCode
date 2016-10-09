@@ -6,6 +6,9 @@ import android.content.Intent;
 import android.os.Bundle;
 import android.os.Handler;
 import android.text.TextUtils;
+import android.util.Log;
+import android.view.Menu;
+import android.view.MenuItem;
 import android.view.View;
 import android.widget.AdapterView;
 import android.widget.LinearLayout;
@@ -20,6 +23,7 @@ import com.yanxinwei.bluetoothspppro.core.BaseActivity;
 import com.yanxinwei.bluetoothspppro.event.TaskCompleteEvent;
 import com.yanxinwei.bluetoothspppro.model.NormalTask;
 import com.yanxinwei.bluetoothspppro.model.RepeatTask;
+import com.yanxinwei.bluetoothspppro.parse.ParseUtils;
 import com.yanxinwei.bluetoothspppro.util.F;
 import com.yanxinwei.bluetoothspppro.util.MyConstants;
 
@@ -44,7 +48,7 @@ import butterknife.ButterKnife;
 
 public class ImportTaskActivity extends BaseActivity {
 
-    public static final SimpleDateFormat date1 = new SimpleDateFormat("yyyy/M/d h:mm");
+    public static final SimpleDateFormat date1 = new SimpleDateFormat("yyyy/M/d H:mm");
     public static final SimpleDateFormat date2 = new SimpleDateFormat("yyyy/M/d");
 
     public static final String TASK_PATH = "taskPath";
@@ -56,16 +60,18 @@ public class ImportTaskActivity extends BaseActivity {
 
     private static final int MENU_ID_IMPORT_TASK = 0x01;
     private static final int MENU_ID_IMPORT_REPEAT_TASK = 0x02;
+    private static final int MENU_ID_SCAN = 0X03;
 
     private globalPool mGP = null;
 
     private static final int FILE_SELECT_CODE = 1001;
     private static final int REQUEST_CODE = 1002;
+    private static final int REQUEST_CODE_SCAN = 1003;
 
     private String taskPath;
 
-    private ArrayList<NormalTask> mNormalTasks = new ArrayList<>(100);
-    private ArrayList<RepeatTask> mRepeatTasks = new ArrayList<>(100);
+    private ArrayList<NormalTask> mNormalTasks = new ArrayList<>(20000);
+    private ArrayList<RepeatTask> mRepeatTasks = new ArrayList<>(20000);
 
     private ProgressDialog mProgressDialog;
     private Handler mHandler = new Handler();
@@ -92,7 +98,7 @@ public class ImportTaskActivity extends BaseActivity {
     @Bind(R.id.txt_task_leakage)
     TextView txtTaskLeakage;
 
-    public static Intent createIntent(Context context, String path, int type){
+    public static Intent createIntent(Context context, String path, int type) {
         Intent intent = new Intent(context, ImportTaskActivity.class);
         intent.putExtra(TASK_PATH, path);
         intent.putExtra(TASK_TYPE, type);
@@ -106,13 +112,12 @@ public class ImportTaskActivity extends BaseActivity {
 
         ButterKnife.bind(this);
 
-//        SDLog.open();
-        mGP = (globalPool)getApplicationContext();
+        mGP = (globalPool) getApplicationContext();
 
         taskType = getIntent().getIntExtra(TASK_TYPE, 0);
-        if (taskType == 1){
+        if (taskType == 1) {
             taskPath = F.TEST_TASK_DIR.concat("/").concat(getIntent().getStringExtra(TASK_PATH));
-        }else if (taskType == 2){
+        } else if (taskType == 2) {
             taskPath = F.REPEAT_TASK_DIR.concat("/").concat(getIntent().getStringExtra(TASK_PATH));
         }
 
@@ -122,10 +127,10 @@ public class ImportTaskActivity extends BaseActivity {
             @Override
             public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
                 Intent intent = null;
-                if (taskType == 1){
-                   intent = NormalTaskActivity.createIntent(ImportTaskActivity.this,
-                           (NormalTask) mAdapter.getItem(position), position, taskPath);
-                }else if (taskType == 2){
+                if (taskType == 1) {
+                    intent = NormalTaskActivity.createIntent(ImportTaskActivity.this,
+                            (NormalTask) mAdapter.getItem(position), position, taskPath);
+                } else if (taskType == 2) {
                     intent = RepeatTaskActivity.createIntent(ImportTaskActivity.this,
                             (RepeatTask) mAdapter.getItem(position), position, taskPath);
                 }
@@ -134,21 +139,7 @@ public class ImportTaskActivity extends BaseActivity {
         });
 
         loadTask();
-//        taskType = (int) SPUtils.get(this, LATEST_TASK_TYPE, 0);
-//        //未加载到任务,显示空界面
-//        if (taskType == 0){
-//            mTaskList.setVisibility(View.GONE);
-//            mEmptyView.setVisibility(View.VISIBLE);
-//        } else {
-//            if (taskType == 1){
-//                taskPath = (String) SPUtils.get(this, TASK_PATH, "");
-//                getSupportActionBar().setTitle("检测任务");
-//            } else {
-//                taskPath = (String) SPUtils.get(this, TASK_REPEAT_PATH, "");
-//                getSupportActionBar().setTitle("复检任务");
-//            }
-//            loadTask();
-//        }
+
         EventBus.getDefault().register(this);
     }
 
@@ -160,147 +151,75 @@ public class ImportTaskActivity extends BaseActivity {
     }
 
     @Subscribe
-    public void onCompleteEvent(TaskCompleteEvent event){
+    public void onCompleteEvent(TaskCompleteEvent event) {
         mAdapter.notifyDataSetChanged();
         showCount();
     }
 
     private void loadTask() {
 
-        if (!taskPath.equals("") && taskType != 0){
+        if (!taskPath.equals("") && taskType != 0) {
             importTask(taskPath);
         }
 
     }
 
-//    @Override
-//    public boolean onCreateOptionsMenu(Menu menu) {
-//        MenuItem miImportTask = menu.add(0, MENU_ID_IMPORT_TASK, 0, getString(R.string.menu_import_task));
-//        miImportTask.setShowAsAction(MenuItem.SHOW_AS_ACTION_NEVER); //一直隐藏
-//
-//        MenuItem miImportRepeatTask = menu.add(0, MENU_ID_IMPORT_REPEAT_TASK, 0,
-//                getString(R.string.menu_import_repeat_task));
-//        miImportRepeatTask.setShowAsAction(MenuItem.SHOW_AS_ACTION_NEVER); //一直隐藏
-//        return super.onCreateOptionsMenu(menu);
-//    }
-//
-//    @Override
-//    public boolean onOptionsItemSelected(MenuItem item) {
-//        switch (item.getItemId()){
-//            case MENU_ID_IMPORT_TASK:
-//                taskType = 1;
-//                showFileSelected();
-//                return true;
-//            case MENU_ID_IMPORT_REPEAT_TASK:
-////                taskType = 2;
-////                showFileSelected();
-//                return  true;
-//            default:
-//                return super.onOptionsItemSelected(item);
-//        }
-//    }
-
-//    private void showFileSelected() {
-//
-//        Intent intent = new Intent(Intent.ACTION_GET_CONTENT);
-//        intent.setType("*/*");
-//        intent.addCategory(Intent.CATEGORY_OPENABLE);
-//        try {
-//            startActivityForResult(Intent.createChooser(intent, "请选择一个要导入的excel任务"),
-//                    FILE_SELECT_CODE);
-//        } catch (android.content.ActivityNotFoundException ex) {
-//            T.showShort(this, "请安装文件管理器");
-//        }
-//
-//    }
-
-    @Override
-    protected void onActivityResult(int requestCode, int resultCode, Intent data) {
-
-//        if (requestCode == FILE_SELECT_CODE){
-//            if (resultCode == RESULT_OK){
-//                Uri uri = data.getData();
-//                T.showShort(this, uri.getPath());
-////                SDLog.appendLog("path"+uri.getPath());
-//                importTask(uri.getPath());
-//            }else {
-//                T.showShort(this, "请选择一个需要导入的任务文件");
-//            }
-//        }else if (requestCode == REQUEST_CODE){
-//            if (resultCode == RESULT_OK){
-//                int row = data.getIntExtra(NormalTaskActivity.SAVED_POSITION, -1);
-//                if (row != -1){
-//                    String detectDate = data.getStringExtra(NormalTaskActivity.DETECTED_DATE);
-//                    if (!TextUtils.isEmpty(detectDate)){
-//                        NormalTask task = mNormalTasks.get(row);
-//                        task.setDetectDate(detectDate);
-//                        mAdapter.notifyDataSetChanged();
-//                    }
-//                }
-//            }
-//        }
-    }
-
-    private void importTask(final String path){
-//        SDLog.appendLog("importTask:start import");
-        mProgressDialog = ProgressDialog.show(this, null, "正在导入任务", true, false);
-        new Thread(new Runnable() {
-            @Override
-            public void run() {
-                try {
-                    if (taskType == 1){
-                        importNormalTask(path);
-                    }else if (taskType == 2){
-                        importRepeatTask(path);
-                    }
-                } catch (IOException e) {
-//                    e.printStackTrace();
-//                    SDLog.appendLog("219 IOException:"+e.getMessage());
-                } finally {
-                    mHandler.post(new Runnable() {
-                        @Override
-                        public void run() {
-                            if (taskType == 1) {
-                                mGP.setNormalTasks(mNormalTasks);
-                                mAdapter = new TaskAdapter(ImportTaskActivity.this, mNormalTasks, null);
-                            }else if (taskType == 2){
-                                mGP.setRepeatTasks(mRepeatTasks);
-                                mAdapter = new TaskAdapter(ImportTaskActivity.this, null, mRepeatTasks);
-                            }
-                            mTaskList.setAdapter(mAdapter);
-                            showCount();
-                            mProgressDialog.dismiss();
-//                            SPUtils.put(ImportTaskActivity.this, LATEST_TASK_TYPE, taskType);
-//                            String key;
-//                            if (taskType == 1){
-//                                key = TASK_PATH;
-//                                getSupportActionBar().setTitle("检测任务");
-//                            }else {
-//                                key = TASK_REPEAT_PATH;
-//                                getSupportActionBar().setTitle("复检任务");
-//                            }
-//                            SPUtils.put(ImportTaskActivity.this, key, path);
-                        }
-                    });
-                }
+    private void importTask(final String path) {
+        if (taskType == 1) {
+            try {
+                importNormalTask1(path);
+            } catch (Exception e) {
+                e.printStackTrace();
             }
-        }).start();
+        } else {
+            mProgressDialog = ProgressDialog.show(this, null, "正在导入任务", true, false);
+            new Thread(new Runnable() {
+                @Override
+                public void run() {
+                    try {
+                        if (taskType == 2) {
+                            importRepeatTask(path);
+                        }
+                    } catch (Exception e) {
+                        e.printStackTrace();
+//                    SDLog.appendLog("219 IOException:"+e.getMessage());
+                    } finally {
+                        mHandler.post(new Runnable() {
+                            @Override
+                            public void run() {
+                                if (taskType == 1) {
+                                    mGP.setNormalTasks(mNormalTasks);
+                                    mAdapter = new TaskAdapter(ImportTaskActivity.this, mNormalTasks, null);
+                                } else if (taskType == 2) {
+                                    mGP.setRepeatTasks(mRepeatTasks);
+                                    mAdapter = new TaskAdapter(ImportTaskActivity.this, null, mRepeatTasks);
+                                }
+                                mTaskList.setAdapter(mAdapter);
+                                showCount();
+                                mProgressDialog.dismiss();
+                            }
+                        });
+                    }
+                }
+            }).start();
+        }
     }
 
-    private void importNormalTask(String path) throws IOException{
+    private void importNormalTask(String path) throws IOException {
         mNormalTasks.clear();
         Row row;
         Cell cell;
         InputStream is = new FileInputStream(path);
         XSSFWorkbook workbook = new XSSFWorkbook(is);
+
         Sheet sheet = workbook.getSheetAt(MyConstants.WORKSHEET_INDEX);
         int rowCount = sheet.getPhysicalNumberOfRows();
 //                    SDLog.appendLog("rowCount:"+rowCount);
-        for (int r = 1; r < rowCount; r++){
+        for (int r = 1; r < rowCount; r++) {
             row = sheet.getRow(r);
 //                        int cellCount = row.getPhysicalNumberOfCells();
             NormalTask normalTask = new NormalTask();
-            for (int c = 0; c < MyConstants.CELL_NUMBER_NORMAL; c++){
+            for (int c = 0; c < MyConstants.CELL_NUMBER_NORMAL; c++) {
                 cell = row.getCell(c);
                 try {
                     NormalTask.convertField(normalTask, c, convertCellValue(cell));
@@ -320,7 +239,38 @@ public class ImportTaskActivity extends BaseActivity {
         }
     }
 
-    private void importRepeatTask(String path) throws IOException{
+    private void importNormalTask1(final String path) throws Exception {
+        mNormalTasks.clear();
+        final long start = System.currentTimeMillis();
+        mProgressDialog = ProgressDialog.show(this, null, "正在导入任务", true, false);
+        new Thread(new Runnable() {
+            @Override
+            public void run() {
+                try {
+                    ParseUtils.convertNormal(path, mNormalTasks);
+                    Log.d("tag", "@@@@ time : " + (System.currentTimeMillis() - start));
+                } catch (Exception e) {
+                    e.printStackTrace();
+                } finally {
+                    mHandler.post(new Runnable() {
+                        @Override
+                        public void run() {
+                            Log.d("tag", "@@@@ time : " + (System.currentTimeMillis() - start));
+                            mGP.setNormalTasks(mNormalTasks);
+                            mAdapter = new TaskAdapter(ImportTaskActivity.this, mNormalTasks, null);
+                            mTaskList.setAdapter(mAdapter);
+                            showCount();
+                            mProgressDialog.dismiss();
+                            Log.d("tag", "@@@@ time : " + (System.currentTimeMillis() - start));
+                        }
+                    });
+                }
+            }
+        }).start();
+    }
+
+
+    private void importRepeatTask(String path) throws IOException {
         mRepeatTasks.clear();
         Row row;
         Cell cell;
@@ -329,11 +279,11 @@ public class ImportTaskActivity extends BaseActivity {
         Sheet sheet = workbook.getSheetAt(1);
         int rowCount = sheet.getPhysicalNumberOfRows();
 //                    SDLog.appendLog("rowCount:"+rowCount);
-        for (int r = 1; r < rowCount; r++){
+        for (int r = 1; r < rowCount; r++) {
             row = sheet.getRow(r);
 //                        int cellCount = row.getPhysicalNumberOfCells();
             RepeatTask repeatTask = new RepeatTask();
-            for (int c = 0; c < AppConstants.CELL_NUMBER_REPEAT; c++){
+            for (int c = 0; c < AppConstants.CELL_NUMBER_REPEAT; c++) {
                 cell = row.getCell(c);
                 try {
                     Object cellValue = convertCellValue(cell);
@@ -357,41 +307,41 @@ public class ImportTaskActivity extends BaseActivity {
         }
     }
 
-    private void showCount(){
+    private void showCount() {
         mLinearLayout.setVisibility(View.VISIBLE);
-        int taskNum = 0,taskTested = 0,taskLeakage = 0;
-        if (taskType == 1){
-            for (NormalTask task : mNormalTasks){
-                taskNum ++;
-                if (!TextUtils.isEmpty(task.getDetectDate())){
-                    taskTested ++;
-                    if (task.getDetectValue() > task.getLeakageThreshold()){
-                        taskLeakage ++;
+        int taskNum = 0, taskTested = 0, taskLeakage = 0;
+        if (taskType == 1) {
+            taskNum = mNormalTasks.size();
+            for (NormalTask task : mNormalTasks) {
+                if (!TextUtils.isEmpty(task.getDetectDate())) {
+                    taskTested++;
+                    if (task.getDetectValue() > task.getLeakageThreshold()) {
+                        taskLeakage++;
                     }
                 }
             }
-        }else if (taskType == 2){
-            for (RepeatTask task : mRepeatTasks){
-                taskNum ++;
-                if (!TextUtils.isEmpty(task.getRepeatDate())){
-                    taskTested ++;
-                    if (task.getRepeatValue() > task.getLeakageThreshold()){
-                        taskLeakage ++;
+        } else if (taskType == 2) {
+            taskNum = mNormalTasks.size();
+            for (RepeatTask task : mRepeatTasks) {
+                if (!TextUtils.isEmpty(task.getRepeatDate())) {
+                    taskTested++;
+                    if (task.getRepeatValue() > task.getLeakageThreshold()) {
+                        taskLeakage++;
                     }
                 }
             }
         }
-        txtTaskNum.setText("任务点数:"+taskNum);
-        txtTaskTested.setText("已测点数:"+taskTested);
-        txtTaskLeakage.setText("泄露点数:"+taskLeakage);
+        txtTaskNum.setText("任务点数:" + taskNum);
+        txtTaskTested.setText("已测点数:" + taskTested);
+        txtTaskLeakage.setText("泄露点数:" + taskLeakage);
     }
 
-    private Object convertCellValue(Cell cell){
+    private Object convertCellValue(Cell cell) {
         try {
-            if (null == cell){
+            if (null == cell) {
                 return "";
-            }else {
-                switch (cell.getCellType()){
+            } else {
+                switch (cell.getCellType()) {
                     case Cell.CELL_TYPE_BLANK:
                         return "";
                     case Cell.CELL_TYPE_BOOLEAN:
@@ -399,19 +349,19 @@ public class ImportTaskActivity extends BaseActivity {
                     case Cell.CELL_TYPE_ERROR:
                         return "";
                     case Cell.CELL_TYPE_NUMERIC:
-                        if(HSSFDateUtil.isCellDateFormatted(cell)){
-                            if(cell.getCellStyle().getDataFormat() == 14){
+                        if (HSSFDateUtil.isCellDateFormatted(cell)) {
+                            if (cell.getCellStyle().getDataFormat() == 14) {
                                 return date2.format(DateUtil.getJavaDate(cell.getNumericCellValue()));
-                            }else if(cell.getCellStyle().getDataFormat() == 22){
+                            } else if (cell.getCellStyle().getDataFormat() == 22) {
                                 return date1.format(DateUtil.getJavaDate(cell.getNumericCellValue()));
-                            }else {
+                            } else {
                                 return date1.format(DateUtil.getJavaDate(cell.getNumericCellValue()));
                             }
                         }
                         // 处理自定义日期格式：m月d日(通过判断单元格的格式id解决，id的值是58)
-                        else if(cell.getCellStyle().getDataFormat() == 58){
+                        else if (cell.getCellStyle().getDataFormat() == 58) {
                             return date1.format(DateUtil.getJavaDate(cell.getNumericCellValue()));
-                        }else {
+                        } else {
                             return cell.getNumericCellValue();
                         }
 
@@ -421,9 +371,79 @@ public class ImportTaskActivity extends BaseActivity {
                         return "";
                 }
             }
-        }catch (Exception e){
+        } catch (Exception e) {
             e.printStackTrace();
             return "";
         }
+    }
+
+    @Override
+    public boolean onCreateOptionsMenu(Menu menu) {
+        if (taskType == 1) {
+            MenuItem miImportTask = menu.add(0, MENU_ID_SCAN, 0, getString(R.string.menu_scan));
+            miImportTask.setShowAsAction(MenuItem.SHOW_AS_ACTION_ALWAYS); //一直隐藏
+        }
+
+        return super.onCreateOptionsMenu(menu);
+    }
+
+    @Override
+    public boolean onOptionsItemSelected(MenuItem item) {
+        switch (item.getItemId()) {
+            case MENU_ID_SCAN:
+                Intent intent = new Intent(this, SimpleScannerActivity.class);
+                startActivityForResult(intent, REQUEST_CODE_SCAN);
+                return true;
+            default:
+                return super.onOptionsItemSelected(item);
+        }
+    }
+
+    @Override
+    protected void onActivityResult(int requestCode, int resultCode, Intent data) {
+        super.onActivityResult(requestCode, resultCode, data);
+        if (resultCode == RESULT_OK) {
+            if (requestCode == REQUEST_CODE_SCAN) {
+                String code = data.getStringExtra(SimpleScannerActivity.SCAN_CODE);
+//                Log.d("tag", "#### code : " + code);
+                if (code != null && code.length() == 8) {
+                    String label = code.substring(3);
+                    int index = searchNormalTask(label);
+                    int totalSize = mNormalTasks.size();
+                    ArrayList<NormalTask> scanTasks = new ArrayList<>();
+                    NormalTask task = mNormalTasks.get(index);
+                    while (task.getLabelNumber().startsWith(label)) {
+                        scanTasks.add(task);
+                        index++;
+                        if (index > totalSize - 1) {
+                            break;
+                        }
+                        task = mNormalTasks.get(index);
+                    }
+                }
+            }
+        }
+    }
+
+    private int searchNormalTask(String label) {
+        label = label + ".000";
+        int start = 0;
+        int end = mNormalTasks.size() - 1;
+        int middle = end / 2;
+        NormalTask normalTask = null;
+        while (middle >= start && middle <= end) {
+            normalTask = mNormalTasks.get(middle);
+            if (label.compareTo(normalTask.getLabelNumber()) > 0) {
+                start = middle;
+                middle = ((end - start) / 2) + start;
+            } else if (label.compareTo(normalTask.getLabelNumber()) < 0) {
+                end = middle;
+                middle = ((end - start) / 2) + start;
+            } else {
+                System.out.println(normalTask.toString());
+                break;
+            }
+        }
+        return middle;
     }
 }

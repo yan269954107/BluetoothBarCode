@@ -7,6 +7,7 @@
     <uses-permission android:name="android.permission.WRITE_SETTINGS"/>
     <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE"/>
     <uses-permission android:name="android.permission.READ_EXTERNAL_STORAGE"/>
+    <uses-permission android:name="android.permission.CAMERA"/>
 
     <uses-feature
         android:name="android.hardware.bluetooth"
@@ -61,22 +62,32 @@
             android:screenOrientation="portrait"/>
         <activity
             android:name=".activity.ImportTaskActivity"
-            android:label="检测任务"/>
-        <activity android:name=".activity.SettingActivity">
+            android:label="检测任务"
+            android:screenOrientation="portrait"/>
+        <activity android:name=".activity.SettingActivity"
+                  android:screenOrientation="portrait">
         </activity>
         <activity
             android:name=".activity.NormalTaskActivity"
-            android:windowSoftInputMode="stateHidden">
+            android:windowSoftInputMode="stateHidden"
+            android:screenOrientation="portrait">
         </activity>
-        <activity android:name=".activity.RepeatTaskActivity">
+        <activity android:name=".activity.RepeatTaskActivity"
+                  android:screenOrientation="portrait">
         </activity>
         <activity
             android:name=".activity.TestTaskActivity"
-            android:label="检测任务">
+            android:label="检测任务"
+            android:screenOrientation="portrait">
         </activity>
         <activity
             android:name=".activity.BackgroundActivity"
-            android:label="背景值检测">
+            android:label="背景值检测"
+            android:screenOrientation="portrait">
+        </activity>
+        <activity
+            android:name=".activity.SimpleScannerActivity"
+            android:screenOrientation="portrait">
         </activity>
     </application>
 

@@ -184,6 +184,9 @@ public class NormalTaskActivity extends AppCompatActivity implements View.OnClic
 
     private float mBackgroundValue = 0;
 
+    private final static int sRequestCode = 10001;
+    private receiveTask mTask;
+
     public static Intent createIntent(Context context, NormalTask normalTask, int row, String taskFilePath) {
         Intent intent = new Intent(context, NormalTaskActivity.class);
         intent.putExtra(NORMAL_TASK, normalTask);
@@ -224,6 +227,12 @@ public class NormalTaskActivity extends AppCompatActivity implements View.OnClic
     @Override
     protected void onDestroy() {
         super.onDestroy();
+        mbThreadStop = true;
+        if (null != mBSC)
+            mBSC.killReceiveData_StopFlg();
+    }
+
+    private void clearSource() {
         mbThreadStop = true;
         if (null != mBSC)
             mBSC.killReceiveData_StopFlg();
@@ -306,9 +315,27 @@ public class NormalTaskActivity extends AppCompatActivity implements View.OnClic
                 alarm();
                 break;
             case R.id.btn_background:
-                detectMode = MODE_BACKGROUND;
-                startDetect();
+//                detectMode = MODE_BACKGROUND;
+//                startDetect();
+                clearSource();
+                Intent intent = new Intent(this, BackgroundActivity.class);
+                startActivityForResult(intent, sRequestCode);
                 break;
+        }
+    }
+
+    @Override
+    protected void onActivityResult(int requestCode, int resultCode, Intent data) {
+        if (requestCode == sRequestCode) {
+            if (resultCode == RESULT_OK) {
+                mBackgroundValue = data.getFloatExtra(BackgroundActivity.BACK_AVERAGE_VALUE_RESULT, 0.0f);
+                mTxtBackground.setText("背景值:" + mBackgroundValue);
+                if (mTask != null) {
+                    mTask = new receiveTask();
+                    mTask.executeOnExecutor(BaseCommActivity.FULL_TASK_EXECUTOR);
+                }
+                saveBackgroundToFile();
+            }
         }
     }
 
@@ -443,6 +470,36 @@ public class NormalTaskActivity extends AppCompatActivity implements View.OnClic
         }).start();
 
 
+    }
+
+    private void saveBackgroundToFile() {
+        new Thread(new Runnable() {
+            @Override
+            public void run() {
+                String path = mTaskPath;
+                if (!path.equals("")) {
+                    try {
+                        InputStream is = new FileInputStream(path);
+                        XSSFWorkbook workbook = new XSSFWorkbook(is);
+                        Sheet sheet = workbook.getSheetAt(0);
+
+                        Row row = sheet.getRow(3);
+                        Cell backCell = getCell(row, 3);
+
+                        BigDecimal bigDecimal = new BigDecimal(mBackgroundValue);
+                        double backValue = bigDecimal.setScale(1, BigDecimal.ROUND_HALF_UP).doubleValue();
+
+                        backCell.setCellValue(backValue);
+                        FileOutputStream os = new FileOutputStream(path);
+                        workbook.write(os);
+                        is.close();
+                        os.close();
+                    }catch (IOException e) {
+
+                    }
+                }
+            }
+        }).start();
     }
 
     private void showToast(final String content) {
@@ -592,8 +649,11 @@ public class NormalTaskActivity extends AppCompatActivity implements View.OnClic
         initIO_Mode();
         setEndFlg();
         //初始化结束，启动接收线程
-        new receiveTask()
-                .executeOnExecutor(BaseCommActivity.FULL_TASK_EXECUTOR);
+        //初始化结束，启动接收线程
+        if (mTask == null) {
+            mTask = new receiveTask();
+            mTask.executeOnExecutor(BaseCommActivity.FULL_TASK_EXECUTOR);
+        }
         showDetectDialog();
     }
 

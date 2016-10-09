@@ -116,6 +116,8 @@
     <string name="menu_task">检测任务</string>
     <string name="menu_repeat_task">复检任务</string>
 
+    <string name="menu_scan">扫描</string>
+
     <string name="nav_setting">设置</string>
 
     <string name="drawer_open">open</string>

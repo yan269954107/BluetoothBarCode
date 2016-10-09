@@ -479,7 +479,6 @@ public class NormalTaskActivity extends AppCompatActivity implements View.OnClic
             }
         }).start();
 
-
     }
 
     private void showToast(final String content) {
