@@ -25,6 +25,7 @@ public class SimpleScannerActivity extends BaseActivity implements ZXingScannerV
     public void onCreate(Bundle state) {
         super.onCreate(state);
         mScannerView = new ZXingScannerView(this);   // Programmatically initialize the scanner view
+        mScannerView.setAutoFocus(true);
         setContentView(mScannerView);                // Set the scanner view as the content view
     }
 

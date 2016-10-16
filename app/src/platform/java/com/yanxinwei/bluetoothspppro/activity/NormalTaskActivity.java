@@ -38,10 +38,15 @@ import com.yanxinwei.bluetoothspppro.util.SPUtils;
 import com.yanxinwei.bluetoothspppro.util.T;
 import com.yanxinwei.bluetoothspppro.view.NumberTextView;
 
+import org.apache.poi.openxml4j.exceptions.InvalidFormatException;
+import org.apache.poi.openxml4j.opc.OPCPackage;
+import org.apache.poi.openxml4j.opc.PackageAccess;
 import org.apache.poi.ss.usermodel.Cell;
+import org.apache.poi.ss.usermodel.CellStyle;
 import org.apache.poi.ss.usermodel.CreationHelper;
 import org.apache.poi.ss.usermodel.Row;
 import org.apache.poi.ss.usermodel.Sheet;
+import org.apache.poi.xssf.streaming.SXSSFWorkbook;
 import org.apache.poi.xssf.usermodel.XSSFCellStyle;
 import org.apache.poi.xssf.usermodel.XSSFWorkbook;
 import org.greenrobot.eventbus.EventBus;
@@ -64,7 +69,8 @@ public class NormalTaskActivity extends AppCompatActivity implements View.OnClic
 
     public static final String NORMAL_TASK = "normal_task";
     public static final String TASK_ON_EXCEL_ROW = "task_on_excel_row";
-    public static final String TASK_FILE_PATH = "tak=sk_file_path";
+    public static final String TASK_FILE_PATH = "task_file_path";
+    public static final String TASK_ON_SCANNED_ROW = "task_on_scanned_row";
 
     public static final String IS_SAVED = "isSaved";
     public static final String SAVED_POSITION = "savedPosition";
@@ -76,6 +82,9 @@ public class NormalTaskActivity extends AppCompatActivity implements View.OnClic
 
     private XSSFCellStyle cellStyle1;
     private XSSFCellStyle cellStyle2;
+
+    private CellStyle cellStyleA;
+    private CellStyle cellStyleB;
 
     @Bind(R.id.edt_detected_equipment)
     EditText mEdtDetectedEquipment;
@@ -164,6 +173,7 @@ public class NormalTaskActivity extends AppCompatActivity implements View.OnClic
     private boolean isSaved = false;
 
     private int mExcelRow = -1;
+    private int mScannedRow = -1;
     private String mTaskPath;
 
     private boolean isCompleted = false;
@@ -195,6 +205,15 @@ public class NormalTaskActivity extends AppCompatActivity implements View.OnClic
         return intent;
     }
 
+    public static Intent createIntent(Context context, NormalTask normalTask, int row, String taskFilePath, int scannedIndex) {
+        Intent intent = new Intent(context, NormalTaskActivity.class);
+        intent.putExtra(NORMAL_TASK, normalTask);
+        intent.putExtra(TASK_ON_EXCEL_ROW, row);
+        intent.putExtra(TASK_FILE_PATH, taskFilePath);
+        intent.putExtra(TASK_ON_SCANNED_ROW, scannedIndex);
+        return intent;
+    }
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -217,8 +236,12 @@ public class NormalTaskActivity extends AppCompatActivity implements View.OnClic
         mInflater = getLayoutInflater();
 
         mExcelRow = getIntent().getIntExtra(TASK_ON_EXCEL_ROW, -1);
+        mScannedRow = getIntent().getIntExtra(TASK_ON_SCANNED_ROW, -1);
         if (mExcelRow != -1) {
             mExcelRow += 1;  //要考虑表头的1行
+            if (mScannedRow != -1) {
+                mExcelRow += mScannedRow;
+            }
         }
         mTaskPath = getIntent().getStringExtra(TASK_FILE_PATH);
 
@@ -360,19 +383,47 @@ public class NormalTaskActivity extends AppCompatActivity implements View.OnClic
         isShowToast = false;
         int row = mExcelRow - 1;
         if (type == 1) {
-            row -= 1;
+            if (mScannedRow != -1) {
+                mScannedRow -= 1;
+            } else {
+                row -= 1;
+            }
         } else {
-            row += 1;
+            if (mScannedRow != -1) {
+                mScannedRow += 1;
+            } else {
+                row += 1;
+            }
         }
-        int length = mGP.getNormalTasks().size();
-        if (row < 0) {
+
+        int length;
+        if (mScannedRow != -1) {
+            length = ScannedTaskActivity.sNormalTasks.size();
+        } else {
+            length = mGP.getNormalTasks().size();
+        }
+
+        int checkRow;
+        if (mScannedRow != -1) {
+            checkRow = mScannedRow;
+        } else {
+            checkRow = row;
+        }
+        if (checkRow < 0) {
             T.showShort(this, "已经是第一条了");
-        } else if (row > length - 1) {
+        } else if (checkRow > length - 1) {
             T.showShort(this, "已经是最后一条了");
         } else {
-            NormalTask targetTask = mGP.getNormalTasks().get(row);
+            NormalTask targetTask;
             String path = mTaskPath;
-            Intent intent = createIntent(this, targetTask, row, path);
+            Intent intent;
+            if (mScannedRow != -1) {
+                targetTask = ScannedTaskActivity.sNormalTasks.get(mScannedRow);
+                intent = createIntent(this, targetTask, row, path, mScannedRow);
+            } else {
+                targetTask = mGP.getNormalTasks().get(row);
+                intent = createIntent(this, targetTask, row, path);
+            }
             startActivity(intent);
             finish();
         }
@@ -470,6 +521,77 @@ public class NormalTaskActivity extends AppCompatActivity implements View.OnClic
         }).start();
 
 
+    }
+
+    private void saveTask1() {
+        mProgressDialog = ProgressDialog.show(this, null, "正在保存数据", true, false);
+
+        new Thread(new Runnable() {
+            @Override
+            public void run() {
+
+                try {
+                    String path = mTaskPath;
+                    OPCPackage pkg = OPCPackage.open(path, PackageAccess.READ);
+                    XSSFWorkbook xwb = new XSSFWorkbook(pkg);
+                    SXSSFWorkbook wb = new SXSSFWorkbook(xwb, 10);
+                    Sheet sheet = wb.getSheetAt(1);
+
+                    CreationHelper helper = wb.getCreationHelper();
+                    cellStyleA = wb.createCellStyle();
+                    cellStyleA.setDataFormat(helper.createDataFormat().getFormat("yyyy/M/d h:mm"));
+                    cellStyleB = wb.createCellStyle();
+                    cellStyleB.setDataFormat(helper.createDataFormat().getFormat("yyyy/M/d"));
+
+                    Row row = sheet.getRow(mExcelRow);
+
+                    setCellDateValue(row, AppConstants.CELL_DETECT_DATE, mEdtDetectDate.getText().toString(), 1);
+
+                    setCellValue(row, AppConstants.CELL_DETECT_DEVICE, mEdtDetectDevice.getText().toString());
+
+                    Cell cellDetectValue = getCell(row, AppConstants.CELL_DETECT_VALUE);
+                    cellDetectValue.setCellValue(Double.parseDouble(mEdtDetectValue.getText().toString()));
+
+                    int isLeakage = (int) task.getIsLeakage();
+                    Cell cellIsLeakage = getCell(row, AppConstants.CELL_IS_LEAKAGE);
+                    cellIsLeakage.setCellValue(task.getIsLeakage());
+
+                    if (isLeakage == 1) {
+                        setCellValue(row, AppConstants.CELL_LEAKAGE_POSITION, mEdtLeakagePosition.getText().toString());
+                    }
+
+                    setCellValue(row, AppConstants.CELL_REMARKS, mEdtRemarks.getText().toString());
+
+                    FileOutputStream os = new FileOutputStream(path);
+                    wb.write(os);
+
+                    os.close();
+
+                    showToast("保存成功");
+                    isSaved = true;
+
+                    mHandler.post(new Runnable() {
+                        @Override
+                        public void run() {
+                            NormalTask normalTask = mGP.getNormalTasks().get(mExcelRow - 1);
+                            normalTask.setDetectValue(mDetectMaxValue);
+                            normalTask.setDetectDate(mDetectTime);
+                            String detectDevice = (String) SPUtils.get(NormalTaskActivity.this,
+                                    SPUtils.SP_DETECT_DEVICE, "未设置");
+                            normalTask.setDetectDevice(detectDevice);
+                            normalTask.setIsLeakage(task.getIsLeakage());
+                            EventBus.getDefault().post(new TaskCompleteEvent());
+                            jumpToTask(2);
+                        }
+                    });
+
+                } catch (InvalidFormatException | IOException e) {
+                    e.printStackTrace();
+                    showToast("保存失败，请重试或联系管理员");
+                }
+
+            }
+        }).start();
     }
 
     private void saveBackgroundToFile() {

@@ -40,6 +40,8 @@ public class ParseUtils {
         ContentHandler handler = new XSSFSheetXMLHandler(styles, strings, normalSaxHandler, true);
         sheetParser.setContentHandler(handler);
         sheetParser.parse(new InputSource(sheetInputStream));
+        pkg.close();
+        sheetInputStream.close();
     }
 
     public static String getLetter(String str) {

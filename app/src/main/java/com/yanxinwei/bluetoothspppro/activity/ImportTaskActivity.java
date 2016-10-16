@@ -14,6 +14,7 @@ import android.widget.AdapterView;
 import android.widget.LinearLayout;
 import android.widget.ListView;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import com.yanxinwei.bluetoothspppro.BLE_SPP_PRO.globalPool;
 import com.yanxinwei.bluetoothspppro.R;
@@ -24,6 +25,7 @@ import com.yanxinwei.bluetoothspppro.event.TaskCompleteEvent;
 import com.yanxinwei.bluetoothspppro.model.NormalTask;
 import com.yanxinwei.bluetoothspppro.model.RepeatTask;
 import com.yanxinwei.bluetoothspppro.parse.ParseUtils;
+import com.yanxinwei.bluetoothspppro.util.DialogUtils;
 import com.yanxinwei.bluetoothspppro.util.F;
 import com.yanxinwei.bluetoothspppro.util.MyConstants;
 
@@ -61,6 +63,7 @@ public class ImportTaskActivity extends BaseActivity {
     private static final int MENU_ID_IMPORT_TASK = 0x01;
     private static final int MENU_ID_IMPORT_REPEAT_TASK = 0x02;
     private static final int MENU_ID_SCAN = 0X03;
+    private static final int MENU_ID_WRITE = 0X04;
 
     private globalPool mGP = null;
 
@@ -110,16 +113,24 @@ public class ImportTaskActivity extends BaseActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_import_task);
 
+        Log.d("tag", "@@@@onCreate");
+
         ButterKnife.bind(this);
 
         mGP = (globalPool) getApplicationContext();
 
-        taskType = getIntent().getIntExtra(TASK_TYPE, 0);
-        if (taskType == 1) {
-            taskPath = F.TEST_TASK_DIR.concat("/").concat(getIntent().getStringExtra(TASK_PATH));
-        } else if (taskType == 2) {
-            taskPath = F.REPEAT_TASK_DIR.concat("/").concat(getIntent().getStringExtra(TASK_PATH));
+        if (savedInstanceState != null) {
+            taskType = savedInstanceState.getInt(TASK_TYPE);
+            taskPath = savedInstanceState.getString(TASK_PATH);
+        } else {
+            taskType = getIntent().getIntExtra(TASK_TYPE, 0);
+            if (taskType == 1) {
+                taskPath = F.TEST_TASK_DIR.concat("/").concat(getIntent().getStringExtra(TASK_PATH));
+            } else if (taskType == 2) {
+                taskPath = F.REPEAT_TASK_DIR.concat("/").concat(getIntent().getStringExtra(TASK_PATH));
+            }
         }
+
 
 
         mTaskList.setEmptyView(mEmptyView);
@@ -138,7 +149,7 @@ public class ImportTaskActivity extends BaseActivity {
             }
         });
 
-        loadTask();
+        loadTask(savedInstanceState);
 
         EventBus.getDefault().register(this);
     }
@@ -146,8 +157,23 @@ public class ImportTaskActivity extends BaseActivity {
     @Override
     protected void onDestroy() {
 //        SDLog.close();
+        Log.d("tag", "@@@@onDestroy");
         EventBus.getDefault().unregister(this);
         super.onDestroy();
+    }
+
+    @Override
+    protected void onRestoreInstanceState(Bundle savedInstanceState) {
+        super.onRestoreInstanceState(savedInstanceState);
+        Log.d("tag", "@@@@onSaveInstanceState");
+    }
+
+    @Override
+    protected void onSaveInstanceState(Bundle outState) {
+        Log.d("tag", "@@@@onSaveInstanceState");
+        outState.putInt(TASK_TYPE, taskType);
+        outState.putString(TASK_PATH, taskPath);
+        super.onSaveInstanceState(outState);
     }
 
     @Subscribe
@@ -156,10 +182,19 @@ public class ImportTaskActivity extends BaseActivity {
         showCount();
     }
 
-    private void loadTask() {
+    private void loadTask(Bundle bundle) {
 
-        if (!taskPath.equals("") && taskType != 0) {
-            importTask(taskPath);
+        if (bundle != null) {
+            if (taskType == 1) {
+                mNormalTasks = mGP.getNormalTasks();
+                mAdapter = new TaskAdapter(ImportTaskActivity.this, mNormalTasks, null);
+                mTaskList.setAdapter(mAdapter);
+                showCount();
+            }
+        } else {
+            if (!taskPath.equals("") && taskType != 0) {
+                importTask(taskPath);
+            }
         }
 
     }
@@ -381,7 +416,10 @@ public class ImportTaskActivity extends BaseActivity {
     public boolean onCreateOptionsMenu(Menu menu) {
         if (taskType == 1) {
             MenuItem miImportTask = menu.add(0, MENU_ID_SCAN, 0, getString(R.string.menu_scan));
-            miImportTask.setShowAsAction(MenuItem.SHOW_AS_ACTION_ALWAYS); //一直隐藏
+            miImportTask.setShowAsAction(MenuItem.SHOW_AS_ACTION_ALWAYS);
+
+            MenuItem miWrite = menu.add(0, MENU_ID_WRITE, 1, "输入");
+            miWrite.setShowAsAction(MenuItem.SHOW_AS_ACTION_ALWAYS);
         }
 
         return super.onCreateOptionsMenu(menu);
@@ -393,6 +431,32 @@ public class ImportTaskActivity extends BaseActivity {
             case MENU_ID_SCAN:
                 Intent intent = new Intent(this, SimpleScannerActivity.class);
                 startActivityForResult(intent, REQUEST_CODE_SCAN);
+                return true;
+            case MENU_ID_WRITE:
+                DialogUtils.showDialogInput("输入标签号", this, new DialogUtils.DialogInputListener() {
+                    @Override
+                    public void onInput(String content) {
+                        navigateToScannedTask(content);
+                    }
+                });
+//                new Thread(new Runnable() {
+//                    @Override
+//                    public void run() {
+//                        try {
+//                            long start = System.currentTimeMillis();
+//                            Fillo fillo = new Fillo();
+//                            Connection connection = fillo.getConnection(taskPath);
+//                            String strQuery="Update 检测信息表 Set 检测日期='2016/3/28 18:10' where 标签号='01542.001'";
+//                            connection.executeUpdate(strQuery);
+//                            connection.close();
+//                            System.out.println("total time : " + (System.currentTimeMillis() - start));
+//                        } catch (Exception e) {
+//                            e.printStackTrace();
+//                        }
+//                    }
+//                }).start();
+
+
                 return true;
             default:
                 return super.onOptionsItemSelected(item);
@@ -408,42 +472,53 @@ public class ImportTaskActivity extends BaseActivity {
 //                Log.d("tag", "#### code : " + code);
                 if (code != null && code.length() == 8) {
                     String label = code.substring(3);
-                    int index = searchNormalTask(label);
-                    int totalSize = mNormalTasks.size();
-                    ArrayList<NormalTask> scanTasks = new ArrayList<>();
-                    NormalTask task = mNormalTasks.get(index);
-                    while (task.getLabelNumber().startsWith(label)) {
-                        scanTasks.add(task);
-                        index++;
-                        if (index > totalSize - 1) {
-                            break;
-                        }
-                        task = mNormalTasks.get(index);
-                    }
+
+                    navigateToScannedTask(label);
                 }
             }
         }
     }
 
+    private void navigateToScannedTask(String label) {
+        int index = searchNormalTask(label);
+        if (index == -1) {
+            Toast.makeText(this, "在当前文档中未能找到标签号为" + label + "的设备", Toast.LENGTH_SHORT).show();
+        } else {
+            int totalSize = mNormalTasks.size();
+            ArrayList<NormalTask> scanTasks = new ArrayList<>();
+            Intent intent = ScannedTaskActivity.createIntent(ImportTaskActivity.this, taskPath, index);
+            NormalTask task = mNormalTasks.get(index);
+            while (task.getLabelNumber().startsWith(label)) {
+                scanTasks.add(task);
+                index++;
+                if (index > totalSize - 1) {
+                    break;
+                }
+                task = mNormalTasks.get(index);
+            }
+            ScannedTaskActivity.sNormalTasks = scanTasks;
+            startActivity(intent);
+        }
+    }
+
     private int searchNormalTask(String label) {
         label = label + ".000";
-        int start = 0;
-        int end = mNormalTasks.size() - 1;
-        int middle = end / 2;
-        NormalTask normalTask = null;
-        while (middle >= start && middle <= end) {
-            normalTask = mNormalTasks.get(middle);
+        int low = 0;
+        int high = mNormalTasks.size() - 1;
+        int mid;
+        NormalTask normalTask;
+        while (low <= high) {
+            mid = (low + high) / 2;
+            normalTask = mNormalTasks.get(mid);
             if (label.compareTo(normalTask.getLabelNumber()) > 0) {
-                start = middle;
-                middle = ((end - start) / 2) + start;
+                low = mid + 1;
             } else if (label.compareTo(normalTask.getLabelNumber()) < 0) {
-                end = middle;
-                middle = ((end - start) / 2) + start;
+                high = mid - 1;
             } else {
                 System.out.println(normalTask.toString());
-                break;
+                return mid;
             }
         }
-        return middle;
+        return -1;
     }
 }
